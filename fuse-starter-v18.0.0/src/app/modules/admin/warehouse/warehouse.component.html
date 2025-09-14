@@ -1,0 +1,104 @@
+<!-- src/app/modules/admin/apps/logistics/magasins/magasins-list/magasins-list.component.html -->
+
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-hidden">
+
+    <!-- Header -->
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-4 px-6 md:px-8 border-b">
+        <div class="text-3xl font-bold tracking-tight">Liste des Magasin</div>
+        <div class="flex flex-shrink-0 items-center mt-4 sm:mt-0 sm:ml-4">
+            <button
+                mat-flat-button
+                [color]="'primary'"
+                (click)="onCreate()"
+                class="ml-4">
+                <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                <span class="ml-2">Créer Magasin</span>
+            </button>
+            <button
+    mat-stroked-button
+    [color]="'accent'"
+    (click)="cycleFilterMode()"
+    class="ml-4">
+    <mat-icon [svgIcon]="'heroicons_outline:eye'"></mat-icon>
+    <span class="ml-2">
+        Show :
+        <ng-container [ngSwitch]="filterMode">
+            <span *ngSwitchCase="'all'">All</span>
+            <span *ngSwitchCase="'active'">Active</span>
+            <span *ngSwitchCase="'inactive'">Inactive</span>
+        </ng-container>
+    </span>
+</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-auto overflow-y-auto">
+
+        <!-- Loading Spinner -->
+        <div class="flex flex-col flex-auto items-center justify-center h-full" *ngIf="loading">
+            <mat-spinner></mat-spinner>
+            <div class="mt-4 text-secondary">Chargement des Magasin...</div>
+        </div>
+
+        <!-- magasins List -->
+        <ng-container *ngIf="!loading">
+            <!-- If magasins exist -->
+            <div class="p-6 md:p-8" *ngIf="warehouses && warehouses.length > 0">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <ng-container *ngFor="let magasin of warehouses">
+                        <div class="flex flex-col ring-1 ring-default rounded overflow-hidden bg-card">
+                            <!-- magasin Info -->
+                            <div class="p-6">
+                                <div class="text-lg font-medium">{{ magasin.name }}</div>
+                                <div class="text-sm text-secondary mt-1">
+                                    
+                                    <div>Description: {{ magasin.description || 'N/A' }}</div>
+                                   
+                                    <div>Statut: {{ magasin.isActive ? 'Actif' : 'Inactif' }}</div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex items-center justify-between px-6 py-4 bg-gray-50 dark:bg-transparent">
+                                <button
+                                    mat-button
+                                    [color]="'accent'"
+                                    (click)="onEdit(magasin)">
+                                    Modifier
+                                </button>
+                                <button
+                                    mat-flat-button
+                                    [color]="magasin.isActive ? 'warn' : 'primary'"
+                                    (click)="false"
+                                    matTooltip="Action désactivée"
+                                    matTooltipPosition="above" >
+                                    
+                                    {{ magasin.isActive ? 'Désactiver' : 'Activer' }}
+                                </button>
+                                
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+
+            <!-- No Data Found -->
+            <div class="flex flex-col flex-auto items-center justify-center h-full p-6 md:p-8" *ngIf="magasins && magasins.length === 0 && !loading">
+                <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="icon-size-20"></mat-icon>
+                <div class="mt-4 text-2xl font-semibold tracking-tight">Aucun magasin trouvé</div>
+                <div class="mt-2 text-md text-secondary text-center max-w-64">
+                    Aucun magasin ne correspond à vos critères.
+                </div>
+                <button
+                    mat-flat-button
+                    [color]="'primary'"
+                    (click)="onCreate()"
+                    class="mt-6">
+                    Créer le premier magasin
+                </button>
+            </div>
+        </ng-container>
+
+    </div>
+</div>

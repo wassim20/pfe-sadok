@@ -1,0 +1,304 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.domain\\entities\\movementtrace.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|solutionrelative:backend\\pfeproject.domain\\entities\\movementtrace.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.domain\\entities\\detailpicklist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|solutionrelative:backend\\pfeproject.domain\\entities\\detailpicklist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.domain\\entities\\picklist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|solutionrelative:backend\\pfeproject.domain\\entities\\picklist.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.domain\\entities\\picklistus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|solutionrelative:backend\\pfeproject.domain\\entities\\picklistus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.domain\\entities\\sap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|solutionrelative:backend\\pfeproject.domain\\entities\\sap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.domain\\entities\\detailinventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|solutionrelative:backend\\pfeproject.domain\\entities\\detailinventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.application\\service\\sapservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|solutionrelative:backend\\pfeproject.application\\service\\sapservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.application\\service\\detailinventoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|solutionrelative:backend\\pfeproject.application\\service\\detailinventoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.application\\service\\inventoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|solutionrelative:backend\\pfeproject.application\\service\\inventoryservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.domain\\entities\\inventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|solutionrelative:backend\\pfeproject.domain\\entities\\inventory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.application\\service\\detailpicklistservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|solutionrelative:backend\\pfeproject.application\\service\\detailpicklistservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.application\\interfaces\\idetailpicklistservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|solutionrelative:backend\\pfeproject.application\\interfaces\\idetailpicklistservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.application\\models\\detailpicklists\\detailpicklistreaddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C976D9F4-E339-4A2C-B840-78E4CA5B5D7D}|backend\\PfeProject.Application\\PfeProject.Application.csproj|solutionrelative:backend\\pfeproject.application\\models\\detailpicklists\\detailpicklistreaddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.domain\\entities\\article.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|solutionrelative:backend\\pfeproject.domain\\entities\\article.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{079152C3-C18A-492E-BED0-5CDABADEF6FF}|backend\\PfeProject.Infrastructure\\PfeProject.Infrastructure.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.infrastructure\\persistence\\repositories\\detailpicklistrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{079152C3-C18A-492E-BED0-5CDABADEF6FF}|backend\\PfeProject.Infrastructure\\PfeProject.Infrastructure.csproj|solutionrelative:backend\\pfeproject.infrastructure\\persistence\\repositories\\detailpicklistrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.domain\\interfaces\\idetailpicklistrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5D63995F-8054-4FB1-BF5B-F33040D71EEE}|backend\\PfeProject.Domain\\PfeProject.Domain.csproj|solutionrelative:backend\\pfeproject.domain\\interfaces\\idetailpicklistrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65966731-E506-47BC-9F19-2578F88886C0}|backend\\PfeProject.API\\PfeProject.API.csproj|c:\\users\\gx15\\downloads\\pfewebapplication.net\\pfewebapplication\\backend\\pfeproject.api\\controllers\\detailpicklistscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65966731-E506-47BC-9F19-2578F88886C0}|backend\\PfeProject.API\\PfeProject.API.csproj|solutionrelative:backend\\pfeproject.api\\controllers\\detailpicklistscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MovementTrace.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\MovementTrace.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Domain\\Entities\\MovementTrace.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\MovementTrace.cs",
+              "RelativeToolTip": "backend\\PfeProject.Domain\\Entities\\MovementTrace.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAxwAIAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-01T14:37:26.069Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Sap.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\Sap.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Domain\\Entities\\Sap.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\Sap.cs",
+              "RelativeToolTip": "backend\\PfeProject.Domain\\Entities\\Sap.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAQwAYAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-01T14:12:17.998Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "SapService.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Service\\SapService.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Application\\Service\\SapService.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Service\\SapService.cs",
+              "RelativeToolTip": "backend\\PfeProject.Application\\Service\\SapService.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-01T14:12:11.969Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "DetailInventoryService.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Service\\DetailInventoryService.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Application\\Service\\DetailInventoryService.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Service\\DetailInventoryService.cs",
+              "RelativeToolTip": "backend\\PfeProject.Application\\Service\\DetailInventoryService.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAAAIwD8AAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-01T14:10:48.568Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "DetailInventory.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\DetailInventory.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Domain\\Entities\\DetailInventory.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\DetailInventory.cs",
+              "RelativeToolTip": "backend\\PfeProject.Domain\\Entities\\DetailInventory.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAxwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-01T14:10:40.08Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PicklistUS.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\PicklistUS.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Domain\\Entities\\PicklistUS.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\PicklistUS.cs",
+              "RelativeToolTip": "backend\\PfeProject.Domain\\Entities\\PicklistUS.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAA1wBgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T22:53:21.463Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DetailPicklist.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\DetailPicklist.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Domain\\Entities\\DetailPicklist.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\DetailPicklist.cs",
+              "RelativeToolTip": "backend\\PfeProject.Domain\\Entities\\DetailPicklist.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAgwAoAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T14:07:19.384Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Picklist.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\Picklist.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Domain\\Entities\\Picklist.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\Picklist.cs",
+              "RelativeToolTip": "backend\\PfeProject.Domain\\Entities\\Picklist.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAzwBsAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T22:53:11.051Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "InventoryService.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Service\\InventoryService.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Application\\Service\\InventoryService.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Service\\InventoryService.cs",
+              "RelativeToolTip": "backend\\PfeProject.Application\\Service\\InventoryService.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAAAIwDoAAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-01T14:09:37.773Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Inventory.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\Inventory.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Domain\\Entities\\Inventory.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\Inventory.cs",
+              "RelativeToolTip": "backend\\PfeProject.Domain\\Entities\\Inventory.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAxwAoAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-01T14:07:44.874Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "DetailPicklistRepository.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Infrastructure\\Persistence\\Repositories\\DetailPicklistRepository.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Infrastructure\\Persistence\\Repositories\\DetailPicklistRepository.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Infrastructure\\Persistence\\Repositories\\DetailPicklistRepository.cs",
+              "RelativeToolTip": "backend\\PfeProject.Infrastructure\\Persistence\\Repositories\\DetailPicklistRepository.cs",
+              "ViewState": "AgIAAFAAAAAAAAAAAAAwwFYAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T13:53:22.138Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "DetailPicklistService.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Service\\DetailPicklistService.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Application\\Service\\DetailPicklistService.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Service\\DetailPicklistService.cs",
+              "RelativeToolTip": "backend\\PfeProject.Application\\Service\\DetailPicklistService.cs",
+              "ViewState": "AgIAAH4AAAAAAAAAAAAqwIUAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T13:45:18.407Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "IDetailPicklistService.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Interfaces\\IDetailPicklistService.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Application\\Interfaces\\IDetailPicklistService.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Interfaces\\IDetailPicklistService.cs",
+              "RelativeToolTip": "backend\\PfeProject.Application\\Interfaces\\IDetailPicklistService.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAiwAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T13:44:59.103Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "DetailPicklistReadDto.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Models\\DetailPicklists\\DetailPicklistReadDto.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Application\\Models\\DetailPicklists\\DetailPicklistReadDto.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\Models\\DetailPicklists\\DetailPicklistReadDto.cs",
+              "RelativeToolTip": "backend\\PfeProject.Application\\Models\\DetailPicklists\\DetailPicklistReadDto.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAcwAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T14:08:43.085Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Article.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\Article.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Domain\\Entities\\Article.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Entities\\Article.cs",
+              "RelativeToolTip": "backend\\PfeProject.Domain\\Entities\\Article.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAMAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T14:52:48.703Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "IDetailPicklistRepository.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Interfaces\\IDetailPicklistRepository.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.Domain\\Interfaces\\IDetailPicklistRepository.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Domain\\Interfaces\\IDetailPicklistRepository.cs",
+              "RelativeToolTip": "backend\\PfeProject.Domain\\Interfaces\\IDetailPicklistRepository.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAqwA4AAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T13:47:01.68Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "DetailPicklistsController.cs",
+              "DocumentMoniker": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.API\\Controllers\\DetailPicklistsController.cs",
+              "RelativeDocumentMoniker": "backend\\PfeProject.API\\Controllers\\DetailPicklistsController.cs",
+              "ToolTip": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.API\\Controllers\\DetailPicklistsController.cs",
+              "RelativeToolTip": "backend\\PfeProject.API\\Controllers\\DetailPicklistsController.cs",
+              "ViewState": "AgIAADsAAAAAAAAAAAAwwEcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-30T13:44:39.24Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
