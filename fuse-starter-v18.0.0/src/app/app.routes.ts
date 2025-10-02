@@ -82,6 +82,8 @@ export const appRoutes: Route[] = [
              {path:'user-role', loadChildren: () => import('app/modules/admin/user-role/user-role.routes')},
              {path:'sap', loadChildren: () => import('app/modules/admin/sap/sap.routes')},
              {path:'line', loadChildren: () => import('app/modules/admin/line/line.routes')},
+             {path:'return', loadChildren: () => import('app/modules/admin/return-line/return.routes')},
+             {path:'movment-trace', loadChildren: () => import('app/modules/admin/movment-trace/movment-trace.routes')},
 
 
             

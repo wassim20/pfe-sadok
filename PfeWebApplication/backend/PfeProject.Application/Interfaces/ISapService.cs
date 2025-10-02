@@ -9,5 +9,6 @@ namespace PfeProject.Application.Interfaces
         Task CreateAsync(SapCreateDto dto);
         Task<bool> UpdateAsync(int id, SapUpdateDto dto);
         Task<bool> SetActiveStatusAsync(int id, bool isActive);
+        Task<bool> AddStockAsync(string usCode, int quantityToAdd);
     }
 }

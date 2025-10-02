@@ -49,5 +49,38 @@ namespace PfeProject.API.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("{id:int}/return-and-add-stock")]
+        public async Task<IActionResult> CreateReturnLineAndAddStock(int id, [FromBody] int userId) // Ou utilisez [FromQuery] si vous préférez
+        {
+            Console.WriteLine($"[MovementTracesController] Requête POST reçue pour /api/MovementTraces/{id}/return-and-add-stock avec userId: {userId}");
+
+            // Vérifier que userId est valide
+            if (userId <= 0)
+            {
+                Console.WriteLine($"[MovementTracesController] UserId invalide : {userId}");
+                return BadRequest(new { Message = "UserId invalide." });
+            }
+
+            // Appeler le service applicatif
+            var result = await _service.CreateReturnLineAndAddStockAsync(id, userId);
+
+            if (result == null)
+            {
+                // Cela peut signifier que le MovementTrace n'existe pas,
+                // que la création du ReturnLine a échoué,
+                // ou que la mise à jour du stock a échoué.
+                Console.WriteLine($"[MovementTracesController] Échec de CreateReturnLineAndAddStockAsync pour MovementTrace ID {id}.");
+                return NotFound(new { Message = $"Échec de la création du retour et de la mise à jour du stock pour le MovementTrace ID {id}." });
+            }
+
+            Console.WriteLine($"[MovementTracesController] ReturnLine ID {result.Id} créé et stock mis à jour avec succès pour MovementTrace ID {id}.");
+            // Retourner 201 Created avec l'objet créé
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            // Note : GetById est l'action pour GET /api/MovementTraces/{id}.
+            // Vous pourriez vouloir rediriger vers l'action de récupération du ReturnLine
+            // si vous avez un contrôleur ReturnLines avec une méthode GetById.
+            // Exemple : return CreatedAtAction("GetById", "ReturnLines", new { id = result.Id }, result);
+        }
     }
 }

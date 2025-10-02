@@ -1,4 +1,6 @@
 ﻿
+using PfeProject.Application.Models.ReturnLines;
+
 namespace PfeProject.Application.Interfaces
 {
     public interface IMovementTraceService
@@ -7,5 +9,6 @@ namespace PfeProject.Application.Interfaces
         Task<MovementTraceReadDto?> GetByIdAsync(int id);
         Task<MovementTraceReadDto> CreateAsync(MovementTraceCreateDto dto);
         Task<bool> SetActiveStatusAsync(int id, bool isActive);
+        Task<ReturnLineReadDto?> CreateReturnLineAndAddStockAsync(int movementTraceId, int userId);
     }
 }

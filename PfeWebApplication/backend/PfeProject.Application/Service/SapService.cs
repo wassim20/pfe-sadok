@@ -79,5 +79,44 @@ namespace PfeProject.Application.Services
             await _repository.SetActiveStatusAsync(id, isActive);
             return true;
         }
+
+        public async Task<bool> AddStockAsync(string usCode, int quantityToAdd)
+        {
+            Console.WriteLine($"[SapService] Tentative d'ajout de stock pour US '{usCode}'. Quantité à ajouter: {quantityToAdd}");
+
+            // 1. Récupérer l'enregistrement SAP par UsCode
+            var sapEntity = await _repository.GetByUsCodeAsync(usCode);
+
+            if (sapEntity == null)
+            {
+                Console.WriteLine($"[SapService] Enregistrement SAP avec US '{usCode}' non trouvé.");
+                return false;
+            }
+
+            // 2. Mettre à jour la quantité
+            int currentQuantity = sapEntity.Quantite;
+            int newQuantity = currentQuantity + quantityToAdd;
+
+            // Facultatif : ne pas autoriser les quantités négatives
+            if (newQuantity < 0) newQuantity = 0;
+
+            sapEntity.Quantite = newQuantity;
+
+            Console.WriteLine($"[SapService] Quantité mise à jour pour US '{usCode}': {currentQuantity} + {quantityToAdd} = {newQuantity}");
+
+            // 3. Sauvegarder
+            try
+            {
+                await _repository.UpdateAsync(sapEntity);
+                Console.WriteLine($"[SapService] Stock mis à jour avec succès pour US '{usCode}'.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SapService] Erreur lors de la mise à jour du stock pour US '{usCode}': {ex.Message}");
+                return false;
+            }
+        }
+
     }
 }

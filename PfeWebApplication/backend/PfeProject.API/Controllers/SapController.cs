@@ -63,5 +63,18 @@ namespace PfeProject.API.Controllers
 
             return NoContent();
         }
+        [HttpPost("add-stock")]
+        public async Task<IActionResult> AddStock([FromBody] SapAddStockDto dto) // Définir ce DTO
+        {
+            // Le DTO devrait contenir UsCode et Quantite (à ajouter)
+            // public class SapAddStockDto { public string UsCode { get; set; } public int Quantite { get; set; } }
+
+            var success = await _sapService.AddStockAsync(dto.UsCode, dto.Quantite);
+            if (!success)
+                return NotFound(new { Message = $"Enregistrement SAP pour US '{dto.UsCode}' non trouvé." });
+
+            return NoContent();
+        }
+        public class SapAddStockDto { public string UsCode { get; set; } public int Quantite { get; set; } }
     }
 }

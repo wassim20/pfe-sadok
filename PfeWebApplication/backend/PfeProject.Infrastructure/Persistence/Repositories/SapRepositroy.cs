@@ -55,5 +55,15 @@ namespace PfeProject.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<Sap?> GetByUsCodeAsync(string usCode)
+        {
+            // Utiliser Entity Framework pour trouver l'entité par UsCode
+            // Assurez-vous que 'UsCode' est le nom correct de la propriété dans votre entité Sap.
+            //return await _context.Saps.FirstOrDefaultAsync(s => s.UsCode == usCode);
+            // Si vous voulez inclure des propriétés de navigation :
+            return await _context.Saps
+                .Include(s => s.Article) // Si nécessaire
+                .FirstOrDefaultAsync(s => s.UsCode == usCode);
+        }
     }
 }

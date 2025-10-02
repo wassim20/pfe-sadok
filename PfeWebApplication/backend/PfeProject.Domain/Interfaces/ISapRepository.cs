@@ -10,6 +10,7 @@ namespace PfeProject.Domain.Interfaces
         Task UpdateAsync(Sap sap);
         Task<bool> ExistsAsync(int id);
         Task SetActiveStatusAsync(int id, bool isActive); // ✅
+        Task<Sap?> GetByUsCodeAsync(string usCode);
 
     }
 }

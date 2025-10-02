@@ -52,6 +52,22 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: 'mat_solid:auto_awesome_motion',
         link: '/line'
      }
+     ,
+    { // line
+        id: 'return',
+        title: 'Return',
+        type: 'basic',
+        icon: 'mat_solid:auto_awesome_motion',
+        link: '/return'
+     }
+     ,
+    { // line
+        id: 'movment-trace',
+        title: 'Movment-trace',
+        type: 'basic',
+        icon: 'mat_solid:auto_awesome_motion',
+        link: '/movment-trace'
+     }
 ];
 export const compactNavigation: FuseNavigationItem[] = [
     {

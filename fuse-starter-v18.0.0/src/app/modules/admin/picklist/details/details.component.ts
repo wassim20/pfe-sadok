@@ -13,6 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import JsBarcode from 'jsbarcode';
+import { concat, concatMap, from, Observable, Subject, takeUntil } from 'rxjs';
+import { UserService } from 'app/core/user/user.service';
 
 @Component({
   selector: 'app-details',
@@ -37,6 +39,7 @@ export class DetailsComponent implements OnInit {
   // Property to hold the calculated total quantity
   totalPicklistQuantity: number = 0;
   isAllAvailable: boolean = false; // Initialize
+  private _unsubscribeAll: Subject<any> = new Subject<any>();
 
   @ViewChildren('barcodeRef') barcodeElements!: QueryList<ElementRef>;
   picklistId!: number;
@@ -47,7 +50,8 @@ export class DetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private picklistService: PicklistService,
     private _snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private _userService :UserService
   ) { }
 
 sendOutPicklist() {
@@ -73,6 +77,7 @@ sendOutPicklist() {
         
         // 3. Refresh picklist data to reflect the change
         this.loadPicklist(); 
+        this.createMovementTracesForPicklist();
         // If details also show status, reload them too
         // this.loadDetailPicklists(this.picklistId); 
       },
@@ -97,6 +102,92 @@ sendOutPicklist() {
     }
   }
 }
+
+
+ private createMovementTracesForPicklist(): void {
+    console.log(`[DetailsComponent] Création des MovementTraces pour la Picklist ID ${this.picklistId}`);
+
+    if (!this.detailPicklists || this.detailPicklists.length === 0) {
+      console.warn('[DetailsComponent] Aucun détail de picklist à traiter pour les MovementTraces.');
+      this._snackBar.open('Aucun détail de picklist à traiter pour les mouvements.', 'Avertissement', { duration: 5000 });
+      return;
+    }
+
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.error('[DetailsComponent] Impossible de créer les MovementTraces : ID utilisateur non disponible.');
+      this._snackBar.open('Impossible de créer les mouvements : utilisateur non identifié.', 'Erreur', { duration: 5000 });
+      return;
+    }
+
+    // Créer un tableau d'observables pour les requêtes de création
+    const createObservables: Observable<any>[] = [];
+
+    for (const detail of this.detailPicklists) {
+      const traceData: any = {
+        // Assurez-vous que les noms de propriétés correspondent à MovementTraceCreateDto
+        usNom: detail.usCode || `TRACE-${this.picklistId}-${detail.id}`, // Vérifier la casse de usCode/id
+        quantite: detail.quantite || '1', // Vérifier la casse de quantite
+        userId: currentUserId,
+        detailPicklistId: detail.id // Vérifier la casse de id
+      };
+
+      console.log(`[DetailsComponent] Préparation de la création de MovementTrace pour DetailPicklist ID ${detail.id}:`, traceData);
+      // --- CORRECTION : Utiliser le bon service ---
+      // createObservables.push(this.picklistService.create(traceData)); // INCORRECT
+      createObservables.push(this.picklistService.createMovementTrace(traceData)); // CORRECT (si méthode ajoutée à PicklistService)
+      // OU (si vous créez un MovementTraceService):
+      // createObservables.push(this.movementTraceService.create(traceData)); // CORRECT
+      // --- FIN DE LA CORRECTION ---
+    }
+
+    // --- CORRECTION : Exécuter les observables un par un ---
+    if (createObservables.length > 0) {
+      // Utiliser concat pour exécuter les observables séquentiellement
+      concat(...createObservables).subscribe({
+        next: (result) => {
+          // Ce 'next' est appelé pour chaque création réussie
+          console.log('[DetailsComponent] MovementTrace créé avec succès:', result);
+          // Vous pouvez accumuler les résultats si nécessaire
+        },
+        error: (err) => {
+          // Cette erreur est déclenchée dès qu'une création échoue
+          console.error('[DetailsComponent] Erreur lors de la création d\'un MovementTrace:', err);
+          this._snackBar.open(`Erreur lors de l'enregistrement d'un mouvement.`, 'Erreur', { duration: 5000 });
+        },
+        complete: () => {
+          // Ce 'complete' est appelé une seule fois, après que tous les 'next' aient été émis
+          console.log(`[DetailsComponent] Tous les MovementTraces (${createObservables.length}) pour la Picklist ID ${this.picklistId} ont été traités.`);
+          this._snackBar.open(`Mouvements pour la picklist ID ${this.picklistId} enregistrés.`, 'Succès', { duration: 3000 });
+        }
+      });
+    } else {
+      console.log(`[DetailsComponent] Aucun MovementTrace à créer pour la Picklist ID ${this.picklistId}.`);
+    }
+    // --- FIN DE LA CORRECTION ---
+  }
+// --- Fin de la nouvelle méthode ---
+
+// --- Méthode utilitaire pour obtenir l'ID de l'utilisateur actuel ---
+/**
+ * Obtient l'ID de l'utilisateur actuellement connecté.
+ * @returns L'ID de l'utilisateur ou null si non disponible.
+ */
+ private getCurrentUserId(): number | null {
+    var userIdStr = null;
+     this._userService.user$
+                .pipe((takeUntil(this._unsubscribeAll)))
+                .subscribe((user: any) =>
+                { console.log(user);
+                
+                  userIdStr = user.id
+                });
+    if (userIdStr) {
+      
+      return userIdStr
+    }
+    return null;
+ }
 
 
 
