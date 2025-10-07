@@ -34,6 +34,10 @@
         [disabled]="picklist?.status?.description === 'Served' || picklist?.status?.description === 'receptionnée'  || !isAllAvailable || detailPicklists.length === 0">
         Envoyer la Picklist
       </button>
+        <button mat-raised-button color="primary" (click)="openAddDetailDialog()" [disabled]="!picklist || picklist.status?.description === 'Served' || picklist.status?.description === 'receptionnée'">
+    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+    <span class="ml-2">Ajouter Détail</span>
+  </button>
     </div>
   </div>
 

@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnInit, Optional, QueryList, ViewChildren } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { PicklistService } from '../picklist.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
@@ -15,6 +15,8 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import JsBarcode from 'jsbarcode';
 import { concat, concatMap, from, Observable, Subject, takeUntil } from 'rxjs';
 import { UserService } from 'app/core/user/user.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { LocationService } from '../../location/location.service';
 
 @Component({
   selector: 'app-details',
@@ -40,6 +42,8 @@ export class DetailsComponent implements OnInit {
   totalPicklistQuantity: number = 0;
   isAllAvailable: boolean = false; // Initialize
   private _unsubscribeAll: Subject<any> = new Subject<any>();
+    articles: any[] = []; // Ajouter cette propriété pour stocker les articles
+
 
   @ViewChildren('barcodeRef') barcodeElements!: QueryList<ElementRef>;
   picklistId!: number;
@@ -103,8 +107,29 @@ sendOutPicklist() {
   }
 }
 
+  openAddDetailDialog(): void {
+    console.log(`[DetailsComponent] Ouverture du dialogue d'ajout de détail pour la Picklist ID ${this.picklistId}`);
+    
+  const dialogRef =  this.dialog.open(AddDetailPicklistDialogComponent, {
+  minWidth: '400px',
+  disableClose: false,
+  autoFocus: true,
+  data: { picklistId: this.picklistId, articles: this.articles }
+});
 
- private createMovementTracesForPicklist(): void {
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`[DetailsComponent] Dialogue d'ajout de détail fermé avec le résultat:`, result);
+      if (result === 'created') {
+        this._snackBar.open(`Détail ajouté avec succès à la picklist ID ${this.picklistId}.`, 'Succès', { duration: 3000 });
+        // Recharger la liste des détails pour inclure le nouveau
+        this.loadDetailPicklists(this.picklistId);
+      }
+      // Gérer 'cancelled' ou d'autres résultats si nécessaire
+    });
+  }
+
+  private createMovementTracesForPicklist(): void {
     console.log(`[DetailsComponent] Création des MovementTraces pour la Picklist ID ${this.picklistId}`);
 
     if (!this.detailPicklists || this.detailPicklists.length === 0) {
@@ -124,47 +149,49 @@ sendOutPicklist() {
     const createObservables: Observable<any>[] = [];
 
     for (const detail of this.detailPicklists) {
+      // --- MODIFICATION : Utiliser articleCode pour usNom ---
+      // Vérifier la structure de votre DetailPicklistReadDto
+      // Exemple : detail.article?.codeArticle ou detail.article?.name
+      // Assurez-vous que detail.article existe et a la bonne propriété
+
+      const articleCode = detail.article?.codeProduit; // Ajustez 'codeArticle' si le nom est différent (ex: 'name', 'designation')
+      console.log(detail.article);
+      
       const traceData: any = {
-        // Assurez-vous que les noms de propriétés correspondent à MovementTraceCreateDto
-        usNom: detail.usCode || `TRACE-${this.picklistId}-${detail.id}`, // Vérifier la casse de usCode/id
-        quantite: detail.quantite || '1', // Vérifier la casse de quantite
+        // Utiliser articleCode comme usNom, ou un fallback si non disponible
+        usNom: articleCode || detail.usCode || `TRACE-${this.picklistId}-${detail.id}`, 
+        quantite: detail.quantite || '1', 
         userId: currentUserId,
-        detailPicklistId: detail.id // Vérifier la casse de id
+        detailPicklistId: detail.id 
       };
+      // --- FIN DE LA MODIFICATION ---
 
       console.log(`[DetailsComponent] Préparation de la création de MovementTrace pour DetailPicklist ID ${detail.id}:`, traceData);
-      // --- CORRECTION : Utiliser le bon service ---
-      // createObservables.push(this.picklistService.create(traceData)); // INCORRECT
-      createObservables.push(this.picklistService.createMovementTrace(traceData)); // CORRECT (si méthode ajoutée à PicklistService)
-      // OU (si vous créez un MovementTraceService):
-      // createObservables.push(this.movementTraceService.create(traceData)); // CORRECT
-      // --- FIN DE LA CORRECTION ---
+      
+      createObservables.push(this.picklistService.createMovementTrace(traceData)); 
     }
 
-    // --- CORRECTION : Exécuter les observables un par un ---
+    // --- Exécuter les observables ---
     if (createObservables.length > 0) {
-      // Utiliser concat pour exécuter les observables séquentiellement
       concat(...createObservables).subscribe({
         next: (result) => {
-          // Ce 'next' est appelé pour chaque création réussie
           console.log('[DetailsComponent] MovementTrace créé avec succès:', result);
-          // Vous pouvez accumuler les résultats si nécessaire
         },
         error: (err) => {
-          // Cette erreur est déclenchée dès qu'une création échoue
           console.error('[DetailsComponent] Erreur lors de la création d\'un MovementTrace:', err);
           this._snackBar.open(`Erreur lors de l'enregistrement d'un mouvement.`, 'Erreur', { duration: 5000 });
         },
         complete: () => {
-          // Ce 'complete' est appelé une seule fois, après que tous les 'next' aient été émis
           console.log(`[DetailsComponent] Tous les MovementTraces (${createObservables.length}) pour la Picklist ID ${this.picklistId} ont été traités.`);
           this._snackBar.open(`Mouvements pour la picklist ID ${this.picklistId} enregistrés.`, 'Succès', { duration: 3000 });
+          // Optionnel : Recharger la liste des MovementTraces si elle est affichée ailleurs
+          // this.loadMovementTraces(); 
         }
       });
     } else {
       console.log(`[DetailsComponent] Aucun MovementTrace à créer pour la Picklist ID ${this.picklistId}.`);
     }
-    // --- FIN DE LA CORRECTION ---
+    // --- Fin de l'exécution --- 
   }
 // --- Fin de la nouvelle méthode ---
 
@@ -246,6 +273,8 @@ checkAvailabilityAndShowDialog() {
     }
   });
 }
+
+
 
 
 
@@ -359,17 +388,35 @@ checkAvailability() {
     console.log('Total Picklist Quantity Calculated:', this.totalPicklistQuantity);
   }
 
-  ngOnInit() {
+   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.picklistId = +params['id'];
-      if (this.picklistId) { // Basic check
+      if (this.picklistId) {
          this.loadPicklist();
          this.loadDetailPicklists(this.picklistId);
+         this.loadArticles(); // Charger les articles au démarrage
       } else {
          this._snackBar.open('ID de picklist invalide', 'Erreur', { duration: 5000 });
       }
     });
   }
+
+  // --- NOUVEAUTÉ : Charger les articles ---
+loadArticles(): void {
+  this.picklistService.getArticles().subscribe({
+    next: (articles) => {
+      this.articles = articles;
+      console.log('Articles loaded:', this.articles);
+    },
+    error: (err) => {
+      console.error('Error loading articles:', err);
+      this._snackBar.open('Erreur lors du chargement des articles', 'Erreur', { duration: 5000 });
+    }
+  });
+}
+
+
+  
 
   loadPicklist() {
     this.picklistService.getPicklistById(this.picklistId).subscribe({
@@ -491,3 +538,174 @@ export class AvailabilityDialogComponent {
     this.dialogRef.close();
   }
 }
+
+
+
+@Component({
+  selector: 'app-add-detail-picklist-dialog',
+  template: `
+    <div class="flex flex-col w-full h-full">
+      <!-- Header -->
+      <div class="flex items-center justify-between py-4 px-6 border-b">
+        <div class="text-lg font-medium">Ajouter un Détail à la Picklist #{{ data?.picklistId }}</div>
+        <button mat-icon-button (click)="onCancel()" [disabled]="submitting">
+          <mat-icon [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-auto overflow-y-auto p-6 md:p-8">
+        <form [formGroup]="detailForm" (ngSubmit)="onSubmit()" class="flex flex-col">
+          
+          <!-- Article -->
+          <mat-form-field class="w-full">
+            <mat-label>Sélectionner un Article</mat-label>
+            <mat-select formControlName="articleId" required>
+              <mat-option *ngFor="let article of data?.articles" [value]="article.id">
+                {{ article.codeProduit }} - {{ article.designation }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="detailForm.get('articleId')?.invalid && detailForm.get('articleId')?.touched">
+              La sélection d'un article est requise.
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Location (sets emplacement) -->
+          <mat-form-field class="w-full mt-4">
+            <mat-label>Emplacement</mat-label>
+            <mat-select [value]="detailForm.get('emplacement')?.value" (selectionChange)="onLocationSelect($event.value)" required>
+              <mat-option *ngFor="let loc of locations" [value]="loc.code">
+                {{ loc.code }} - {{ loc.designation }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="detailForm.get('emplacement')?.invalid && detailForm.get('emplacement')?.touched">
+              L'emplacement est requis.
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Quantité -->
+          <mat-form-field class="w-full mt-4">
+            <mat-label>Quantité</mat-label>
+            <input matInput type="text" formControlName="quantite" placeholder="Entrez la quantité" required>
+            <mat-error *ngIf="detailForm.get('quantite')?.invalid && detailForm.get('quantite')?.touched">
+              La quantité est requise.
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Hidden fields -->
+          <input type="hidden" formControlName="statusId">
+          <input type="hidden" formControlName="picklistId">
+
+          <!-- Actions -->
+          <div class="flex items-center justify-end mt-6">
+            <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="submitting">
+              Annuler
+            </button>
+            <button mat-flat-button color="primary" type="submit" class="ml-3" [disabled]="detailForm.invalid || submitting">
+              <mat-progress-spinner *ngIf="submitting" diameter="20" mode="indeterminate" class="mr-2"></mat-progress-spinner>
+              <span *ngIf="!submitting">Ajouter Détail</span>
+              <span *ngIf="submitting">Ajout...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `,
+  styles: [`
+    :host { display: flex; flex-direction: column; height: 100%; }
+    .mat-mdc-form-field { width: 100%; }
+    mat-progress-spinner { display: inline-block; vertical-align: middle; }
+  `],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressSpinnerModule
+  ]
+})
+export class AddDetailPicklistDialogComponent implements OnInit {
+  detailForm: FormGroup;
+  submitting = false;
+  locations: any[] = [];
+
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private _formBuilder: FormBuilder,
+    private _picklistService: PicklistService,
+    private _locationService: LocationService,
+    public dialogRef: MatDialogRef<AddDetailPicklistDialogComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: { picklistId: number; articles: any[] }
+  ) {
+    this.detailForm = this._formBuilder.group({
+      articleId: [null, [Validators.required, Validators.min(1)]],
+      emplacement: ['', [Validators.required]],
+      quantite: ['', [Validators.required]],
+      statusId: [1],
+      picklistId: [null, [Validators.required]]
+    });
+  }
+
+  ngOnInit(): void {
+    if (!this.data?.picklistId) {
+      console.error('[AddDetailPicklistDialogComponent] Missing picklist ID.');
+      this.dialogRef.close();
+      return;
+    }
+    this.detailForm.patchValue({ picklistId: this.data.picklistId });
+
+    // Load locations
+    this._locationService.getLocations(true)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: locs => this.locations = locs,
+        error: err => console.error('Error loading locations:', err)
+      });
+  }
+
+  onLocationSelect(code: string): void {
+    this.detailForm.get('emplacement')?.setValue(code);
+  }
+
+  onSubmit(): void {
+    if (this.detailForm.invalid) {
+      this.detailForm.markAllAsTouched();
+      return;
+    }
+
+    this.submitting = true;
+    const formData = this.detailForm.value;
+
+    this._picklistService.createDetailPicklist(formData)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.submitting = false;
+          this.dialogRef.close('created');
+        },
+        error: err => {
+          this.submitting = false;
+          let errorMsg = 'Erreur lors de la création du détail.';
+          if (err.status === 400) errorMsg = 'Données de détail invalides.';
+          else if (err.status === 404) errorMsg = 'Picklist, Article ou Statut non trouvé.';
+          else if (err.status >= 500) errorMsg = 'Erreur serveur.';
+          alert(errorMsg);
+        }
+      });
+  }
+
+  onCancel(): void {
+    this.dialogRef.close('cancelled');
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}
+// --- Fin du composant AddDetailPicklistDialogComponent ---

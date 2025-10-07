@@ -63,6 +63,7 @@ namespace PfeProject.API.Controllers
 
             return NoContent();
         }
+
         [HttpPost("add-stock")]
         public async Task<IActionResult> AddStock([FromBody] SapAddStockDto dto) // Définir ce DTO
         {

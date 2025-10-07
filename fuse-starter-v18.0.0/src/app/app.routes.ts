@@ -83,7 +83,7 @@ export const appRoutes: Route[] = [
              {path:'sap', loadChildren: () => import('app/modules/admin/sap/sap.routes')},
              {path:'line', loadChildren: () => import('app/modules/admin/line/line.routes')},
              {path:'return', loadChildren: () => import('app/modules/admin/return-line/return.routes')},
-             {path:'movment-trace', loadChildren: () => import('app/modules/admin/movment-trace/movment-trace.routes')},
+             {path:'movement-trace', loadChildren: () => import('app/modules/admin/movment-trace/movment-trace.routes')},
 
 
             

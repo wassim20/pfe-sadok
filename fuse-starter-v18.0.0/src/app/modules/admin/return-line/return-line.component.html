@@ -59,29 +59,24 @@
                     <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.quantite }}</td>
                   </ng-container>
 
-                  <!-- UsCode Column -->
-                  <ng-container matColumnDef="usCode">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code US</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.usCode }}</td>
-                  </ng-container>
 
                   <!-- ArticleId Column -->
                   <ng-container matColumnDef="articleId">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article ID</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.articleId }}</td>
+                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article Code</th>
+                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.articleCode }}</td>
                   </ng-container>
 
                   <!-- UserId Column -->
                   <ng-container matColumnDef="userId">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur ID</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.userId }}</td>
+                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur </th>
+                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.userName }}</td>
                   </ng-container>
 
                    <!-- StatusId Column -->
                    <ng-container matColumnDef="statusId">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut ID</th>
+                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut Name</th>
                     <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                      {{ element.status?.description || element.statusId }}
+                      {{ element?.statusName || element.statusId }}
                     </td>
                   </ng-container>
 

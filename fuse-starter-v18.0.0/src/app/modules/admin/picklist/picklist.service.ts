@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class PicklistService {
+
   
   private apiUrl = 'http://localhost:5288/api/Picklists';
 
@@ -76,6 +77,10 @@ export class PicklistService {
     return this.http.get<any>(`http://localhost:5288/api/MovementTraces/${id}`);
   }
 
+getArticles(): Observable<any[]> {
+  return this.http.get<any[]>('http://localhost:5288/api/Articles?isActive=true');
+}
+
   // POST: /api/MovementTraces
   createMovementTrace(dto: any): Observable<any> { // Utilise 'any' pour le DTO
     return this.http.post<any>(`http://localhost:5288/api/MovementTraces`, dto);
@@ -89,5 +94,17 @@ export class PicklistService {
   }
 
 
-  
+   createDetailPicklist(createDto: any): Observable<any> {
+    // Construire l'URL. Important: respecter la casse 'DetailPicklists' (D et P majuscules)
+    // comme définie dans [Route("api/[controller]")] du contrôleur ASP.NET Core DetailPicklistsController.
+    const url = `http://localhost:5288/api/DetailPicklists`;
+    console.log(`[PicklistService] Envoi de la requête POST ${url}`, createDto);
+    
+    // Envoyer la requête POST avec le DTO dans le corps.
+    // Le backend s'attend à recevoir un JSON correspondant à DetailPicklistCreateDto.
+    return this.http.post<any>(url, createDto);
+    // Backend:
+    // - En cas de succès: retourne 201 Created avec le DetailPicklistReadDto créé.
+    // - En cas d'échec (données invalides, Picklist/Article/Status non trouvé): retourne un code d'erreur (400, 404, 409, 500).
+  }
 }

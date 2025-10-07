@@ -87,36 +87,39 @@ namespace PfeProject.Application.Services
             // 1. Récupérer l'enregistrement SAP par UsCode
             var sapEntity = await _repository.GetByUsCodeAsync(usCode);
 
+            // 2. Vérifier si l'enregistrement existe
             if (sapEntity == null)
             {
                 Console.WriteLine($"[SapService] Enregistrement SAP avec US '{usCode}' non trouvé.");
-                return false;
+                return false; // Retourner false pour indiquer l'échec
             }
 
-            // 2. Mettre à jour la quantité
-            int currentQuantity = sapEntity.Quantite;
+            // 3. Mettre à jour la quantité
+            // On peut accéder directement à Quantite, car c'est un int
+            int currentQuantity = sapEntity.Quantite; // Récupérer la quantité actuelle
             int newQuantity = currentQuantity + quantityToAdd;
 
-            // Facultatif : ne pas autoriser les quantités négatives
+            // S'assurer que la nouvelle quantité n'est pas négative (optionnel)
             if (newQuantity < 0) newQuantity = 0;
 
-            sapEntity.Quantite = newQuantity;
+            sapEntity.Quantite = newQuantity; // Mettre à jour la quantité directement
 
             Console.WriteLine($"[SapService] Quantité mise à jour pour US '{usCode}': {currentQuantity} + {quantityToAdd} = {newQuantity}");
 
-            // 3. Sauvegarder
+            // 4. Sauvegarder les modifications via le repository
             try
             {
-                await _repository.UpdateAsync(sapEntity);
+                await _repository.UpdateAsync(sapEntity); // Utiliser la méthode existante
                 Console.WriteLine($"[SapService] Stock mis à jour avec succès pour US '{usCode}'.");
-                return true;
+                return true; // Succès
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[SapService] Erreur lors de la mise à jour du stock pour US '{usCode}': {ex.Message}");
-                return false;
+                return false; // Échec
             }
         }
+
 
     }
 }

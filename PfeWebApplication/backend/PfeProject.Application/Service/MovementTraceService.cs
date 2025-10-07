@@ -31,6 +31,8 @@ namespace PfeProject.Application.Services
                 DateMouvement = mt.DateMouvement,
                 UserId = mt.UserId,
                 DetailPicklistId = mt.DetailPicklistId,
+                DetailPicklistEmplacement = mt.DetailPicklist?.Emplacement,
+                UserName= mt.User.FirstName + " " + mt.User.LastName,
                 ArticleId = mt.DetailPicklist?.ArticleId ?? 0,
                 IsActive = mt.IsActive
             });

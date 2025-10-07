@@ -47,7 +47,7 @@ export class ReturnLineComponent implements OnInit, OnDestroy {
   returnLines: ReturnLineReadDto[] = [];
   loading: boolean = false;
   isActiveFilter: boolean = true; // Placeholder, voir note dans le template
-  displayedColumns: string[] = ['id', 'dateRetour', 'quantite', 'usCode', 'articleId', 'userId', 'statusId', 'actions'];
+  displayedColumns: string[] = ['id', 'dateRetour', 'quantite', 'articleId', 'userId', 'statusId', 'actions'];
 
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -84,7 +84,7 @@ export class ReturnLineComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.returnLines = [];
         }
-      }); 
+      });
   }
 
   toggleActiveFilter(): void {
@@ -114,9 +114,11 @@ export class ReturnLineComponent implements OnInit, OnDestroy {
   openEditDialog(returnLine: ReturnLineReadDto): void {
     console.log('[ReturnLineComponent] Ouverture du dialogue d\'édition pour ID:', returnLine.id);
     const dialogRef = this._matDialog.open(ReturnLineEditComponent, {
-      minWidth: '400px',
+       width: '800px',
+  maxHeight: '90vh',
       disableClose: false,
       autoFocus: true,
+       data: { returnLineData: returnLine } 
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -135,6 +137,7 @@ export class ReturnLineComponent implements OnInit, OnDestroy {
       minWidth: '400px',
       disableClose: false,
       autoFocus: true,
+       data: { returnLineData: returnLine } 
     });
   }
 
@@ -144,6 +147,7 @@ export class ReturnLineComponent implements OnInit, OnDestroy {
       minWidth: '300px',
       disableClose: false,
       autoFocus: true,
+       data: { returnLineData: id } 
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -198,13 +202,13 @@ export class ReturnLineComponent implements OnInit, OnDestroy {
       </mat-form-field>
 
       <!-- UsCode -->
-      <mat-form-field class="w-full mt-4">
+      <!-- <mat-form-field class="w-full mt-4">
         <mat-label>Code US</mat-label>
         <input matInput formControlName="usCode" placeholder="Entrez le code US" required>
         <mat-error *ngIf="returnLineForm.get('usCode')?.invalid && returnLineForm.get('usCode')?.touched">
           Le code US est requis.
         </mat-error>
-      </mat-form-field>
+      </mat-form-field> -->
 
       <!-- ArticleId -->
       <mat-form-field class="w-full mt-4">
@@ -325,7 +329,7 @@ export class ReturnLineCreateComponent implements OnInit {
     this.returnLineForm = this._formBuilder.group({
       dateRetour: ['', [Validators.required]], // datetime-local renvoie une chaîne
       quantite: ['', [Validators.required]],
-      usCode: ['', [Validators.required]],
+      // usCode: ['', [Validators.required]],
       articleId: [null, [Validators.required, Validators.min(1)]],
       userId: [null, [Validators.required, Validators.min(1)]], // ID de l'utilisateur effectuant le retour
       statusId: [1, [Validators.required, Validators.min(1)]]  // Statut initial, ex: 1 = "En Attente"
@@ -416,13 +420,13 @@ export class ReturnLineCreateComponent implements OnInit {
           </mat-form-field>
 
           <!-- UsCode -->
-          <mat-form-field class="w-full mt-4">
+          <!-- <mat-form-field class="w-full mt-4">
             <mat-label>Code US</mat-label>
             <input matInput formControlName="usCode" placeholder="Entrez le code US" required>
             <mat-error *ngIf="returnLineForm.get('usCode')?.invalid && returnLineForm.get('usCode')?.touched">
               Le code US est requis.
             </mat-error>
-          </mat-form-field>
+          </mat-form-field> -->
 
           <!-- ArticleId -->
           <mat-form-field class="w-full mt-4">
@@ -529,7 +533,7 @@ export class ReturnLineEditComponent implements OnInit {
     this.returnLineForm = this._formBuilder.group({
       dateRetour: ['', [Validators.required]],
       quantite: ['', [Validators.required]],
-      usCode: ['', [Validators.required]],
+      // usCode: ['', [Validators.required]],
       articleId: [null, [Validators.required, Validators.min(1)]],
       userId: [null, [Validators.required, Validators.min(1)]],
       statusId: [null, [Validators.required, Validators.min(1)]]
@@ -639,12 +643,12 @@ export class ReturnLineEditComponent implements OnInit {
             </div>
           </mat-list-item>
           <mat-divider></mat-divider>
-          <mat-list-item>
+          <!-- <mat-list-item>
             <div class="flex justify-between w-full">
               <span class="font-medium">Code US:</span>
               <span>{{ data.returnLineData.usCode }}</span>
             </div>
-          </mat-list-item>
+          </mat-list-item> -->
           <mat-divider></mat-divider>
           <mat-list-item>
             <div class="flex justify-between w-full">
@@ -766,6 +770,8 @@ export class ReturnLineDeleteComponent {
 
   onDelete(): void {
     const id = this.data?.returnLineData;
+    console.log(this.data);
+    
     if (!id) {
       console.error('[ReturnLineDeleteComponent] ID de retour manquant pour la suppression.');
       this._snackBar.open('ID de retour manquant pour la suppression.', 'Erreur', { duration: 5000 });

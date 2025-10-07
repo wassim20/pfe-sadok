@@ -62,7 +62,7 @@ namespace PfeProject.Infrastructure.Repositories
             //return await _context.Saps.FirstOrDefaultAsync(s => s.UsCode == usCode);
             // Si vous voulez inclure des propriétés de navigation :
             return await _context.Saps
-                .Include(s => s.Article) // Si nécessaire
+                //.Include(s => s.Article) // Si nécessaire
                 .FirstOrDefaultAsync(s => s.UsCode == usCode);
         }
     }

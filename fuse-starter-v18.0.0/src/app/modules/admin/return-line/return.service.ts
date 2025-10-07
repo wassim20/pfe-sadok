@@ -12,12 +12,10 @@ export interface ReturnLineReadDto {
   quantite: string;
   usCode: string;
   articleId: number;
+  articleCode :string;
   userId: number;
+  userName :string;
   statusId: number;
-  // Propriétés de navigation si incluses par le backend
-  article?: { id: number; codeArticle: string }; // Exemple
-  user?: { id: number; firstName: string; lastName: string; matricule: string }; // Exemple
-  status?: { id: number; description: string }; // Exemple
 }
 
 export interface ReturnLineCreateDto {

@@ -53,8 +53,11 @@ namespace PfeProject.Application.Service
                 Quantite = r.Quantite,
                 DateRetour = r.DateRetour,
                 ArticleId = r.ArticleId,
+                ArticleCode = r.Article.CodeProduit,
                 StatusId = r.StatusId,
-                UserId = r.UserId
+                StatusName=r.Status.Description,
+                UserId = r.UserId,
+                UserName = r.User.FirstName + " " + r.User.LastName
             });
         }
 
