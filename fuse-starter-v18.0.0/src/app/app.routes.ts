@@ -84,6 +84,7 @@ export const appRoutes: Route[] = [
              {path:'line', loadChildren: () => import('app/modules/admin/line/line.routes')},
              {path:'return', loadChildren: () => import('app/modules/admin/return-line/return.routes')},
              {path:'movement-trace', loadChildren: () => import('app/modules/admin/movment-trace/movment-trace.routes')},
+             {path:'articles', loadChildren: () => import('app/modules/admin/article/article.routes')},
 
 
             

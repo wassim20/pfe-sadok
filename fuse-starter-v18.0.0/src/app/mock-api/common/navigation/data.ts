@@ -63,6 +63,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
     type: 'basic',
     icon: 'mat_solid:track_changes', // Ou 'mat_solid:route', 'mat_solid:navigation'
     link: '/movement-trace'
+  },
+  { // movement-trace
+    id: 'article',
+    title: 'Articles',
+    type: 'basic',
+    icon: 'mat_solid:track_changes', // Ou 'mat_solid:route', 'mat_solid:navigation'
+    link: '/articles'
   }
 ];
 export const compactNavigation: FuseNavigationItem[] = [

@@ -197,10 +197,16 @@ export class AuthService
      *
      * @param user
      */
-    signUp(user: { name: string; email: string; password: string; company: string }): Observable<any>
-    {
-        return this._httpClient.post('api/auth/sign-up', user);
-    }
+   signUp(user: {
+    firstName: string;
+    lastName: string;
+    matricule: string;
+    email: string;
+    password: string;
+}): Observable<any> {
+    return this._httpClient.post('http://localhost:5288/api/users/admin-create', user);
+}
+
 
     /**
      * Unlock session

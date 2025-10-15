@@ -117,7 +117,7 @@ namespace PfeProject.API.Controllers
 
         // POST: api/users/admin-create
         [HttpPost("admin-create")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminCreateUser([FromBody] UserCreateDto dto)
         {
             var user = new User
