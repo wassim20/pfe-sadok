@@ -204,7 +204,8 @@ export class AuthService
     email: string;
     password: string;
 }): Observable<any> {
-    return this._httpClient.post('http://localhost:5288/api/users/admin-create', user);
+    // Use backend Auth register endpoint per swagger
+    return this._httpClient.post('http://localhost:5288/api/Auth/register', user);
 }
 
 

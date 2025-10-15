@@ -11,6 +11,7 @@ namespace PfeProject.Infrastructure.Persistence
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<Company> Companies { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<MovementTrace> MovementTraces { get; set; }
@@ -30,6 +31,20 @@ namespace PfeProject.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
+            // ======== COMPANIES ========
+            modelBuilder.Entity<Company>(entity =>
+            {
+                entity.ToTable("Companies");
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+                entity.Property(c => c.Description).HasMaxLength(255);
+                entity.Property(c => c.Code).IsRequired().HasMaxLength(50);
+                entity.Property(c => c.CreationDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(c => c.UpdateDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(c => c.IsActive).HasDefaultValue(true);
+                entity.HasIndex(c => c.Code).IsUnique();
+            });
+
             // ======== USERS ========
             modelBuilder.Entity<User>(entity =>
             {
@@ -44,6 +59,7 @@ namespace PfeProject.Infrastructure.Persistence
                 entity.Property(u => u.FailedLoginAttempts).HasDefaultValue(0);
                 entity.HasIndex(u => u.Matricule).IsUnique();
                 entity.HasIndex(u => u.Email).IsUnique();
+                entity.HasOne(u => u.Company).WithMany(c => c.Users).HasForeignKey(u => u.CompanyId).OnDelete(DeleteBehavior.Restrict);
             });
 
             // ======== ROLES ========
@@ -78,6 +94,7 @@ namespace PfeProject.Infrastructure.Persistence
                 entity.HasKey(w => w.Id);
                 entity.Property(w => w.Name).IsRequired().HasMaxLength(100);
                 entity.Property(w => w.Description).HasMaxLength(255);
+                entity.HasOne(w => w.Company).WithMany(c => c.Warehouses).HasForeignKey(w => w.CompanyId).OnDelete(DeleteBehavior.Restrict);
             });
 
             // ======== LOCATIONS ========
@@ -99,6 +116,7 @@ namespace PfeProject.Infrastructure.Persistence
                 entity.ToTable("Status");
                 entity.HasKey(s => s.Id);
                 entity.Property(s => s.Description).IsRequired().HasMaxLength(100);
+                entity.HasOne(s => s.Company).WithMany(c => c.Statuses).HasForeignKey(s => s.CompanyId).OnDelete(DeleteBehavior.Restrict);
             });
 
             // ======== PICKLISTS ========
@@ -111,6 +129,7 @@ namespace PfeProject.Infrastructure.Persistence
                 entity.Property(p => p.Type).HasMaxLength(100);
                 entity.Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(p => p.IsActive).HasDefaultValue(true);
+                entity.HasOne(p => p.Company).WithMany(c => c.Picklists).HasForeignKey(p => p.CompanyId).OnDelete(DeleteBehavior.Restrict);
                 entity.HasOne(p => p.Line).WithMany(l => l.Picklists).HasForeignKey(p => p.LineId);
                 entity.HasOne(p => p.Status).WithMany(s => s.Picklists).HasForeignKey(p => p.StatusId);
                 entity.HasOne(p => p.Warehouse).WithMany(w => w.Picklists).HasForeignKey(p => p.WarehouseId);
@@ -150,8 +169,8 @@ namespace PfeProject.Infrastructure.Persistence
                 entity.Property(a => a.CodeProduit).IsRequired().HasMaxLength(100);
                 entity.Property(a => a.Designation).IsRequired().HasMaxLength(255);
                 entity.Property(a => a.DateAjout).HasDefaultValueSql("CURRENT_TIMESTAMP");
-                entity.Property(a => a.IsActive)
-         .HasDefaultValue(true);
+                entity.Property(a => a.IsActive).HasDefaultValue(true);
+                entity.HasOne(a => a.Company).WithMany(c => c.Articles).HasForeignKey(a => a.CompanyId).OnDelete(DeleteBehavior.Restrict);
             });
 
             // ======== RETURN LINES ========
@@ -190,6 +209,7 @@ namespace PfeProject.Infrastructure.Persistence
                 entity.Property(i => i.Name).IsRequired().HasMaxLength(100);
                 entity.Property(i => i.Status).HasMaxLength(100);
                 entity.Property(i => i.DateInventaire).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.HasOne(i => i.Company).WithMany(c => c.Inventories).HasForeignKey(i => i.CompanyId).OnDelete(DeleteBehavior.Restrict);
             });
 
             // ======== DETAIL INVENTORY ========
@@ -214,6 +234,7 @@ namespace PfeProject.Infrastructure.Persistence
                 entity.HasKey(l => l.Id);
                 entity.Property(l => l.Description).HasMaxLength(255);
                 entity.Property(l => l.IsActive).HasDefaultValue(true);
+                entity.HasOne(l => l.Company).WithMany(c => c.Lines).HasForeignKey(l => l.CompanyId).OnDelete(DeleteBehavior.Restrict);
             });
 
             // ======== SAP ========
@@ -224,8 +245,8 @@ namespace PfeProject.Infrastructure.Persistence
                 entity.Property(s => s.Article).HasMaxLength(100);
                 entity.Property(s => s.UsCode).HasMaxLength(100);
                 entity.Property(s => s.Quantite);
-                entity.Property(s => s.IsActive)
-          .HasDefaultValue(true);
+                entity.Property(s => s.IsActive).HasDefaultValue(true);
+                entity.HasOne(s => s.Company).WithMany(c => c.Saps).HasForeignKey(s => s.CompanyId).OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

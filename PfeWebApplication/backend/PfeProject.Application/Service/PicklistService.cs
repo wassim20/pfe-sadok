@@ -116,5 +116,15 @@ namespace PfeProject.Application.Services
 
             return await _repository.SetActiveStatusAsync(id, isActive);
         }
+
+        // New: set status directly by statusId (transitions validated lightly here)
+        public async Task<bool> SetStatusAsync(int id, int statusId)
+        {
+            var existing = await _repository.GetByIdAsync(id);
+            if (existing == null) return false;
+            existing.StatusId = statusId;
+            await _repository.UpdateAsync(existing);
+            return true;
+        }
     }
 }

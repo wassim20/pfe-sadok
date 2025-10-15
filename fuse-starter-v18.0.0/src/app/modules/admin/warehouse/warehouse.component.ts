@@ -14,11 +14,12 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-warehouse',
   standalone: true,
-  imports: [CommonModule, NgIf, NgFor, MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule, MatDialogModule, FormsModule,MatTooltipModule],
+  imports: [CommonModule, NgIf, NgFor, MatButtonModule, MatIconModule, MatCardModule, MatSnackBarModule, MatDialogModule,MatFormFieldModule, FormsModule,MatTooltipModule, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule],
   templateUrl: './warehouse.component.html',
   styleUrls: ['./warehouse.component.scss'],
   encapsulation: ViewEncapsulation.None,
@@ -44,6 +45,12 @@ export class WarehouseComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+   /**
+     * TrackBy to optimize ngFor rendering in the template
+     */
+    trackById(index: number, item: any): number | string {
+        return item?.id ?? index;
+    }
 
   loadWarehouses(): void {
     this.loading = true;

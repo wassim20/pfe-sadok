@@ -208,6 +208,80 @@ filter: 'all' | 'active' | 'inactive' = 'all';
     this.displayedPicklists = [...this.picklists];
   }
 }
+
+  // Transition handlers
+  onMarkReady(p: any): void {
+    // Load details and check availability first for safety
+    this.picklistService.loadDetailPicklists(p.id).subscribe({
+      next: (details) => {
+        const payload = details.map((d: any) => ({
+          id: d.id,
+          detailPicklistId: d.id,
+          article: d.article,
+          status: d.status,
+          emplacement: d.emplacement,
+          quantite: d.quantite,
+          picklistId: d.picklistId,
+          isActive: d.isActive
+        }));
+        this.picklistService.checkInventoryAvailability(payload).subscribe({
+          next: (res) => {
+            const allOk = res.every(r => r.isAvailable === true);
+            if (!allOk) {
+              this._snackBar.open('Disponibilité insuffisante pour au moins un article', '', { duration: 4000 });
+              return;
+            }
+            this.picklistService.markReady(p.id).subscribe({
+              next: () => { this._snackBar.open('Pickliste marquée Prête', '', { duration: 3000 }); this.loadpicklists(); },
+              error: (e) => { console.error(e); this._snackBar.open('Erreur marquage Prête', 'Erreur', { duration: 4000 }); }
+            });
+          },
+          error: (err) => { console.error(err); this._snackBar.open('Erreur vérification disponibilité', 'Erreur', { duration: 4000 }); }
+        });
+      },
+      error: (err) => { console.error(err); this._snackBar.open('Erreur chargement détails', 'Erreur', { duration: 4000 }); }
+    });
+  }
+
+  onStartShipping(p: any): void {
+    this.picklistService.startShipping(p.id).subscribe({
+      next: () => { this._snackBar.open('Expédition démarrée', '', { duration: 3000 }); this.loadpicklists(); },
+      error: (e) => { console.error(e); this._snackBar.open('Erreur démarrage expédition', 'Erreur', { duration: 4000 }); }
+    });
+  }
+
+  onComplete(p: any): void {
+    this.picklistService.complete(p.id).subscribe({
+      next: () => { this._snackBar.open('Pickliste terminée', '', { duration: 3000 }); this.loadpicklists(); },
+      error: (e) => { console.error(e); this._snackBar.open('Erreur terminaison', 'Erreur', { duration: 4000 }); }
+    });
+  }
+
+  onCheckAvailability(p: any): void {
+    this.picklistService.loadDetailPicklists(p.id).subscribe({
+      next: (details) => {
+        const payload = details.map((d: any) => ({
+          id: d.id,
+          detailPicklistId: d.id,
+          article: d.article,
+          status: d.status,
+          emplacement: d.emplacement,
+          quantite: d.quantite,
+          picklistId: d.picklistId,
+          isActive: d.isActive
+        }));
+        this.picklistService.checkInventoryAvailability(payload).subscribe({
+          next: (res) => {
+            const ok = res.filter(r => r.isAvailable);
+            const ko = res.filter(r => !r.isAvailable);
+            this._snackBar.open(`Disponibles: ${ok.length}, Indisponibles: ${ko.length}`, '', { duration: 4000 });
+          },
+          error: (e) => { console.error(e); this._snackBar.open('Erreur vérification disponibilité', 'Erreur', { duration: 4000 }); }
+        });
+      },
+      error: (e) => { console.error(e); this._snackBar.open('Erreur chargement détails', 'Erreur', { duration: 4000 }); }
+    });
+  }
 }
 
 

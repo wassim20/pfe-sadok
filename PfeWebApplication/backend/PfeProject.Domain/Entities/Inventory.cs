@@ -11,6 +11,9 @@ namespace PfeProject.Domain.Entities
         public DateTime DateInventaire { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true; // ✅ Soft delete
 
+        // 🏢 Company relationship
+        public int CompanyId { get; set; }
+        public virtual Company Company { get; set; }
 
         // 🔁 Lignes scannées (détails)
         public ICollection<DetailInventory> DetailInventories { get; set; } = new HashSet<DetailInventory>();

@@ -18,7 +18,7 @@ import { User } from 'app/core/user/user.types';
 @Component({
     selector     : 'example',
     standalone   : true,
-    imports     : [EmailEditorModule,MatButtonModule,CommonModule,MatIconModule,MatSnackBarModule],
+    imports     : [EmailEditorModule, MatButtonModule, CommonModule, MatIconModule, MatSnackBarModule, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule],
     templateUrl  : './example.component.html',
     styleUrls : ['./example.component.css'],
     encapsulation: ViewEncapsulation.None,
@@ -116,6 +116,13 @@ currentFilter: 'all' | 'active' | 'inactive' = 'all'; // Commence par afficher t
     // Appliquer le filtre localement sans rappeler l'API
     this.applyLocalFilter();
 }
+
+    /**
+     * TrackBy to optimize ngFor rendering in the template
+     */
+    trackById(index: number, item: any): number | string {
+        return item?.id ?? index;
+    }
 private applyLocalFilter(): void {
     switch (this.currentFilter) {
         case 'active':

@@ -104,7 +104,7 @@ namespace PfeProject.Application.Service
             if (string.IsNullOrEmpty(role))
                 return new AuthResponse { Message = "Aucun rôle actif assigné à cet utilisateur ❌", Success = false };
 
-            var token = await _jwtService.GenerateToken(user.Id.ToString(), user.Email, role);
+            var token = await _jwtService.GenerateToken(user.Id.ToString(), user.Email, role, user.CompanyId);
 
             return new AuthResponse
             {

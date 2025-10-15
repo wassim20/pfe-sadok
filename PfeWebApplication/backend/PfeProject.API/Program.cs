@@ -8,6 +8,7 @@ using PfeProject.Application.Services;
 using PfeProject.Domain.Interfaces;
 using PfeProject.Infrastructure.Persistence;
 using PfeProject.Infrastructure.Repositories;
+using PfeProject.API.Middlewares;
 using System.Text;
 
 
@@ -54,6 +55,8 @@ builder.Services.AddScoped<ILineService, LineService>();
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<IPicklistUsRepository, PicklistUsRepository>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IPicklistUsService, PicklistUsService>();
 
 
@@ -123,6 +126,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -148,6 +152,9 @@ app.UseCors("AllowAngularApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Add company data isolation middleware
+app.UseMiddleware<CompanyDataIsolationMiddleware>();
 
 app.MapControllers();
 

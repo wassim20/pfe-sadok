@@ -13,19 +13,22 @@ import { NgIf, NgFor } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-location',
   standalone: true,
   imports: [
     CommonModule,
+    MatFormFieldModule,
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
     MatCardModule,
     MatDialogModule,
     FormsModule,
-    NgIf,
+    NgIf
+    , MatFormFieldModule, MatInputModule, MatProgressSpinnerModule,
     NgFor,
   ],
   templateUrl: './location.component.html',
@@ -53,6 +56,12 @@ filterMode: 'all' | 'active' | 'inactive' = 'active';
     this.destroy$.next();
     this.destroy$.complete();
   }
+   /**
+     * TrackBy to optimize ngFor rendering in the template
+     */
+    trackById(index: number, item: any): number | string {
+        return item?.id ?? index;
+    }
 
 loadLocations(): void {
   this.loading = true;

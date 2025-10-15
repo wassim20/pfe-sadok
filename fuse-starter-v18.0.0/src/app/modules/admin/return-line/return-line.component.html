@@ -3,14 +3,6 @@
       <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-4 px-6 md:px-8 border-b">
         <div class="text-3xl font-bold tracking-tight">Gestion des Retours Ligne</div>
         <div class="flex flex-shrink-0 items-center mt-4 sm:mt-0 sm:ml-4">
-          <!-- <button
-            mat-flat-button
-            [color]="'primary'"
-            (click)="openCreateDialog()"
-            class="ml-4">
-            <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-            <span class="ml-2">Créer Retour</span>
-          </button> -->
           <button
             mat-stroked-button
             [color]="'accent'"
@@ -18,8 +10,6 @@
             class="ml-4">
             <mat-icon [svgIcon]="'heroicons_outline:eye'"></mat-icon>
             <span class="ml-2">Afficher {{ isActiveFilter ? 'Inactifs' : 'Actifs' }}</span>
-            <!-- Note: ReturnLine n'a pas de champ isActive dans le DTO fourni. -->
-            <!-- Cette logique peut être adaptée pour filtrer par statut si nécessaire. -->
           </button>
         </div>
       </div>
@@ -32,98 +22,75 @@
           <div class="mt-4 text-secondary">Chargement des retours...</div>
         </div>
 
-        <!-- ReturnLines Table/List -->
-        <div class="flex-auto overflow-y-auto" *ngIf="!loading">
-          <mat-card class="shadow-md rounded-lg overflow-hidden">
-            <mat-card-header class="bg-gray-100 rounded-t-lg">
-              <mat-card-title class="text-xl text-gray-800">Liste des Retours</mat-card-title>
-            </mat-card-header>
-            <mat-card-content class="p-0">
-              <div class="overflow-x-auto">
-                <table mat-table [dataSource]="returnLines" class="min-w-full">
-                  <!-- ID Column -->
-                  <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.id }}</td>
-                  </ng-container>
-
-                  <!-- DateRetour Column -->
-                  <ng-container matColumnDef="dateRetour">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Retour</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.dateRetour | date:'short' }}</td>
-                  </ng-container>
-
-                  <!-- Quantite Column -->
-                  <ng-container matColumnDef="quantite">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.quantite }}</td>
-                  </ng-container>
-
-
-                  <!-- ArticleId Column -->
-                  <ng-container matColumnDef="articleId">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article Code</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.articleCode }}</td>
-                  </ng-container>
-
-                  <!-- UserId Column -->
-                  <ng-container matColumnDef="userId">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur </th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.userName }}</td>
-                  </ng-container>
-
-                   <!-- StatusId Column -->
-                   <ng-container matColumnDef="statusId">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut Name</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                      {{ element?.statusName || element.statusId }}
-                    </td>
-                  </ng-container>
-
-                  <!-- Actions Column -->
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
-                      <button mat-icon-button (click)="openViewDialog(element)" title="Voir Détails">
-                        <mat-icon>visibility</mat-icon>
-                      </button>
-                      <button mat-icon-button (click)="openEditDialog(element)" title="Modifier">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button color="warn" (click)="openDeleteDialog(element.id)" title="Supprimer">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                      <!-- Bouton pour changer le statut si nécessaire -->
-                      <!--
-                      <button mat-icon-button color="accent" (click)="openStatusDialog(element)" title="Changer Statut">
-                        <mat-icon>sync</mat-icon>
-                      </button>
-                      -->
-                    </td>
-                  </ng-container>
-
-                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"></tr>
-                </table>
-              </div>
-
-              <!-- Empty State -->
-              <div class="flex flex-col items-center justify-center p-8 text-gray-500" *ngIf="returnLines.length === 0 && !loading">
-                <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="icon-size-16"></mat-icon>
-                <div class="mt-4 text-2xl font-semibold tracking-tight">Aucun retour trouvé</div>
-                <div class="mt-2 text-md text-secondary text-center max-w-64">
-                  Commencez par créer un nouveau retour.
+        <!-- Grouped by UserName -->
+        <ng-container *ngIf="!loading">
+          <div *ngFor="let group of groupedByUser" class="mb-6">
+            <mat-card class="shadow-md rounded-lg overflow-hidden">
+              <mat-card-header class="bg-gray-100 rounded-t-lg">
+                <mat-card-title class="text-lg text-gray-800">
+                  Utilisateur: {{ group.userName || '—' }} ({{ group.items.length }})
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="p-0">
+                <div class="overflow-x-auto">
+                  <table mat-table [dataSource]="group.items" class="min-w-full">
+                    <ng-container matColumnDef="id">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.id }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="dateRetour">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Retour</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.dateRetour | date:'short' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="quantite">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.quantite }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="articleCode">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article Code</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.articleCode }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="statusName">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element?.statusName || element.statusId }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
+                        <button mat-icon-button (click)="openViewDialog(element)" title="Voir Détails">
+                          <mat-icon>visibility</mat-icon>
+                        </button>
+                        <button mat-icon-button (click)="openEditDialog(element)" title="Modifier">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="openDeleteDialog(element.id)" title="Supprimer">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="['id','dateRetour','quantite','articleCode','statusName','actions']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['id','dateRetour','quantite','articleCode','statusName','actions']" class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"></tr>
+                  </table>
                 </div>
-                <button
-                  mat-flat-button
-                  [color]="'primary'"
-                  (click)="openCreateDialog()"
-                  class="mt-6">
-                  Créer le premier retour
-                </button>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Empty State -->
+          <div class="flex flex-col items-center justify-center p-8 text-gray-500" *ngIf="groupedByUser.length === 0 && !loading">
+            <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="icon-size-16"></mat-icon>
+            <div class="mt-4 text-2xl font-semibold tracking-tight">Aucun retour trouvé</div>
+            <div class="mt-2 text-md text-secondary text-center max-w-64">
+              Commencez par créer un nouveau retour.
+            </div>
+            <button
+              mat-flat-button
+              [color]="'primary'"
+              (click)="openCreateDialog()"
+              class="mt-6">
+              Créer le premier retour
+            </button>
+          </div>
+        </ng-container>
       </div>
     </div>

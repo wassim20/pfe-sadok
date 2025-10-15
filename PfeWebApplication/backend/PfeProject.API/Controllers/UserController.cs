@@ -117,9 +117,14 @@ namespace PfeProject.API.Controllers
 
         // POST: api/users/admin-create
         [HttpPost("admin-create")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminCreateUser([FromBody] UserCreateDto dto)
         {
+            // Company of the acting admin creating the user
+            var companyIdClaim = User.FindFirst("CompanyId")?.Value;
+            if (string.IsNullOrEmpty(companyIdClaim) || !int.TryParse(companyIdClaim, out var companyId))
+                return Unauthorized(new { message = "Company information missing in token" });
+
             var user = new User
             {
                 FirstName = dto.FirstName,
@@ -129,7 +134,8 @@ namespace PfeProject.API.Controllers
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 CreationDate = DateTime.UtcNow,
                 UpdateDate = DateTime.UtcNow,
-                State = true
+                State = true,
+                CompanyId = companyId
             };
 
             await _userRepository.AddUserAsync(user);

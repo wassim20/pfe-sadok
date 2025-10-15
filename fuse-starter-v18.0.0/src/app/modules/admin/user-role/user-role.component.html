@@ -3,6 +3,27 @@
   <!-- Title -->
   <h2 class="text-2xl font-bold">Gestion des Rôles Utilisateur</h2>
 
+  <!-- Create User Toggle -->
+  <div class="flex justify-end">
+    <button mat-flat-button color="primary" (click)="toggleCreateUser()">
+      {{ showCreateUser ? 'Fermer' : 'Créer un utilisateur' }}
+    </button>
+  </div>
+
+  <!-- Create User Form -->
+  <div *ngIf="showCreateUser" class="p-4 bg-white rounded border space-y-3">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <input class="border p-2 rounded" placeholder="Prénom" [(ngModel)]="createUserPayload.firstName" name="firstName">
+      <input class="border p-2 rounded" placeholder="Nom" [(ngModel)]="createUserPayload.lastName" name="lastName">
+      <input class="border p-2 rounded" placeholder="Matricule" [(ngModel)]="createUserPayload.matricule" name="matricule">
+      <input class="border p-2 rounded" placeholder="Email" [(ngModel)]="createUserPayload.email" name="email">
+      <input class="border p-2 rounded" placeholder="Mot de passe" [(ngModel)]="createUserPayload.password" name="password" type="password">
+    </div>
+    <div class="flex justify-end">
+      <button mat-flat-button color="accent" (click)="createUser()">Créer</button>
+    </div>
+  </div>
+
   <!-- Users Table Wrapper -->
   <div class="w-full overflow-x-auto rounded-lg shadow-sm border border-gray-200">
     <mat-table [dataSource]="users" class="mat-elevation-z8 w-full bg-white text-sm">

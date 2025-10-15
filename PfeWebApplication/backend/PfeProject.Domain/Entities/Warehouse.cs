@@ -7,6 +7,9 @@ public class Warehouse
     public string Description { get; set; } // Description_magasin
     public bool IsActive { get; set; } = true;
 
+    // 🏢 Company relationship
+    public int CompanyId { get; set; }
+    public virtual Company Company { get; set; }
 
     // 🔗 Relations
     public ICollection<Location> Locations { get; set; } = new HashSet<Location>();

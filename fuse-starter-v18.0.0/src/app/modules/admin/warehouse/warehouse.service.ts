@@ -25,7 +25,8 @@ export class WarehouseService {
   }
 
   setActiveStatus(id: number, value: boolean): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}/set-active?value=${value}`, {});
+    const params = { params: { value: value.toString() } } as const;
+    return this.http.put(`${this.baseUrl}/${id}/set-active`, {}, params);
   }
 }
 

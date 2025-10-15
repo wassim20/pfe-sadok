@@ -14,9 +14,9 @@ namespace PfeProject.Application.Services
             _repo = repo;
         }
 
-        public async Task<IEnumerable<ArticleReadDto>> GetAllAsync(bool? isActive = true)
+        public async Task<IEnumerable<ArticleReadDto>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
         {
-            var list = await _repo.GetAllAsync(isActive);
+            var list = await _repo.GetAllByCompanyAsync(companyId, isActive);
             return list.Select(a => new ArticleReadDto
             {
                 Id = a.Id,
@@ -27,9 +27,9 @@ namespace PfeProject.Application.Services
             });
         }
 
-        public async Task<ArticleReadDto?> GetByIdAsync(int id)
+        public async Task<ArticleReadDto?> GetByIdAndCompanyAsync(int id, int companyId)
         {
-            var a = await _repo.GetByIdAsync(id);
+            var a = await _repo.GetByIdAndCompanyAsync(id, companyId);
             if (a == null) return null;
             return new ArticleReadDto
             {
@@ -41,14 +41,15 @@ namespace PfeProject.Application.Services
             };
         }
 
-        public async Task<ArticleReadDto> CreateAsync(ArticleCreateDto dto)
+        public async Task<ArticleReadDto> CreateForCompanyAsync(ArticleCreateDto dto, int companyId)
         {
             var article = new Article
             {
                 CodeProduit = dto.CodeProduit,
                 Designation = dto.Designation,
                 IsActive = true,
-                DateAjout = DateTime.UtcNow
+                DateAjout = DateTime.UtcNow,
+                CompanyId = companyId
             };
             await _repo.AddAsync(article);
 
@@ -62,9 +63,9 @@ namespace PfeProject.Application.Services
             };
         }
 
-        public async Task<bool> UpdateAsync(int id, ArticleUpdateDto dto)
+        public async Task<bool> UpdateForCompanyAsync(int id, ArticleUpdateDto dto, int companyId)
         {
-            var article = await _repo.GetByIdAsync(id);
+            var article = await _repo.GetByIdAndCompanyAsync(id, companyId);
             if (article == null) return false;
 
             article.CodeProduit = dto.CodeProduit;
@@ -73,9 +74,9 @@ namespace PfeProject.Application.Services
             return true;
         }
 
-        public async Task<bool> SetActiveStatusAsync(int id, bool isActive)
+        public async Task<bool> SetActiveStatusForCompanyAsync(int id, bool isActive, int companyId)
         {
-            return await _repo.SetActiveStatusAsync(id, isActive);
+            return await _repo.SetActiveStatusForCompanyAsync(id, isActive, companyId);
         }
     }
 }

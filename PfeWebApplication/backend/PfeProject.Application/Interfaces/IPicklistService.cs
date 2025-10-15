@@ -10,6 +10,6 @@ namespace PfeProject.Application.Interfaces
         Task<PicklistReadDto> CreateAsync(PicklistCreateDto dto);
         Task<bool> UpdateAsync(int id, PicklistUpdateDto dto);
         Task<bool> SetActiveStatusAsync(int id, bool isActive);
-     
+        Task<bool> SetStatusAsync(int id, int statusId);
     }
 }

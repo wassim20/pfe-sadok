@@ -40,6 +40,11 @@ export class UserRoleComponent implements OnInit {
   loadingRoles = false;
   assigningRoles = false;
   
+  // Admin create user
+  showCreateUser = false;
+  companies: any[] = [];
+  createUserPayload: any = { firstName: '', lastName: '', matricule: '', email: '', password: '' };
+
   // Columns for the user table
   displayedUserColumns: string[] = ['id', 'fullName', 'matricule', 'email', 'roles', 'actions'];
 
@@ -52,6 +57,7 @@ export class UserRoleComponent implements OnInit {
   ngOnInit(): void {
     this.loadUsers();
     this.loadRoles();
+    this.loadCompanies();
   }
 
   loadUsers(): void {
@@ -86,6 +92,17 @@ export class UserRoleComponent implements OnInit {
           duration: 5000,
         });
         this.loadingRoles = false;
+      }
+    });
+  }
+
+  loadCompanies(): void {
+    this.userRoleService.getCompanies().subscribe({
+      next: (data) => {
+        this.companies = data;
+      },
+      error: (err) => {
+        console.error('Error loading companies', err);
       }
     });
   }
@@ -209,6 +226,45 @@ export class UserRoleComponent implements OnInit {
         this.snackBar.open(errorMessage, 'Fermer', {
           duration: 5000,
         });
+      }
+    });
+  }
+
+  toggleCreateUser(): void {
+    this.showCreateUser = !this.showCreateUser;
+  }
+
+  createUser(): void {
+    const p = this.createUserPayload;
+    if (!p.firstName || !p.lastName || !p.email || !p.password || !p.matricule) {
+      this.snackBar.open('Veuillez remplir tous les champs', 'Fermer', { duration: 4000 });
+      return;
+    }
+    this.userRoleService.adminCreateUser(p).subscribe({
+      next: () => {
+        this.snackBar.open('Utilisateur créé. Assignez un rôle pour activer la connexion.', 'Fermer', { duration: 4000 });
+        this.showCreateUser = false;
+        const createdEmail = p.email;
+        this.createUserPayload = { firstName: '', lastName: '', matricule: '', email: '', password: '' };
+        // Reload and auto-open role assignment for the new user
+        this.userRoleService.getAllUsers().subscribe({
+          next: (data) => {
+            this.users = data;
+            const justCreated = this.users.find(u => (u.email || '').toLowerCase() === createdEmail.toLowerCase());
+            if (justCreated) {
+              this.manageRoles(justCreated);
+              this.snackBar.open('Sélection automatique de l\'utilisateur créé pour l\'assignation des rôles.', 'Fermer', { duration: 4000 });
+            }
+          },
+          error: () => {
+            // fallback to simple reload
+            this.loadUsers();
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error creating user', err);
+        this.snackBar.open('Erreur lors de la création de l\'utilisateur', 'Fermer', { duration: 5000 });
       }
     });
   }

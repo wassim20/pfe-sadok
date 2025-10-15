@@ -40,7 +40,8 @@ export class LocationService {
   setActiveStatus(id: number, value: boolean): Observable<any> {
     let params = new HttpParams();
     params = params.append('value', value.toString());
-    return this.http.put(`${this.apiUrl}/Locations/${id}/set-active`, { params });
+    // Empty body, params passed in options to match controller signature
+    return this.http.put(`${this.apiUrl}/Locations/${id}/set-active`, {}, { params });
   }
   // location.service.ts
 

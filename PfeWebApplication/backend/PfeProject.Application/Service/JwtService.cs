@@ -24,7 +24,7 @@ namespace PfeProject.Application.Services
             _expiryInMinutes = int.Parse(configuration["JwtSettings:ExpiryInMinutes"]);
         }
 
-        public async Task<string> GenerateToken(string userId, string email, string role)
+        public async Task<string> GenerateToken(string userId, string email, string role, int companyId)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -34,6 +34,7 @@ namespace PfeProject.Application.Services
                 new Claim(JwtRegisteredClaimNames.Sub, userId),
                 new Claim(JwtRegisteredClaimNames.Email, email),
                 new Claim(ClaimTypes.Role, role), // ✅ Store User Role in Token
+                new Claim("CompanyId", companyId.ToString()), // ✅ Store Company ID in Token
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

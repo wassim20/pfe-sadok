@@ -39,6 +39,16 @@ export class PicklistService {
     return this.http.put(`${this.apiUrl}/${id}/set-active`, null, { params });
   }
 
+  // ✅ Transitions
+  markReady(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/ready`, {});
+  }
+  startShipping(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/ship`, {});
+  }
+  complete(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/complete`, {});
+  }
   
 
    getWarehouses(): Observable<any[]> {

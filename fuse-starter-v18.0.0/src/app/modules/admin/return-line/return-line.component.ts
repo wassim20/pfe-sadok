@@ -45,6 +45,7 @@ import { MatDividerModule } from '@angular/material/divider';
 
 export class ReturnLineComponent implements OnInit, OnDestroy {
   returnLines: ReturnLineReadDto[] = [];
+  groupedByUser: Array<{ userName: string, items: ReturnLineReadDto[] }> = [];
   loading: boolean = false;
   isActiveFilter: boolean = true; // Placeholder, voir note dans le template
   displayedColumns: string[] = ['id', 'dateRetour', 'quantite', 'articleId', 'userId', 'statusId', 'actions'];
@@ -74,8 +75,14 @@ export class ReturnLineComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe({
         next: (data) => {
-          console.log('[ReturnLineComponent] Retours chargés:', data);
           this.returnLines = data || [];
+          const groups: { [key: string]: ReturnLineReadDto[] } = {};
+          for (const r of this.returnLines) {
+            const key = (r.userName || '—').toString();
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(r);
+          }
+          this.groupedByUser = Object.keys(groups).map(k => ({ userName: k, items: groups[k] }));
           this.loading = false;
         },
         error: (err) => {
@@ -83,6 +90,7 @@ export class ReturnLineComponent implements OnInit, OnDestroy {
           this._snackBar.open('Erreur lors du chargement des retours.', 'Erreur', { duration: 5000 });
           this.loading = false;
           this.returnLines = [];
+          this.groupedByUser = [];
         }
       });
   }

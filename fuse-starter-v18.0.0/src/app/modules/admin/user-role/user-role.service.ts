@@ -50,4 +50,14 @@ export class UserRoleService {
     // Example endpoint based on swagger: DELETE /api/UserRole/{userId}/{roleId}
     return this.http.delete(`${this.apiUrl}/UserRole/${userId}/${roleId}`);
   }
+
+  // Companies (admin)
+  getCompanies(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/Company`);
+  }
+
+  // Admin create user (company inferred from token)
+  adminCreateUser(payload: { firstName: string; lastName: string; matricule: string; email: string; password: string; }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/users/admin-create`, payload);
+  }
 }

@@ -68,12 +68,12 @@ signUp(): void {
     this.signUpForm.disable();
     this.showAlert = false;
 
-    // Get the raw form value
-    const formValue = this.signUpForm.value;
-
+    // Build payload matching backend RegisterRequest (exclude agreements)
+    const { firstName, lastName, matricule, email, password } = this.signUpForm.getRawValue();
+    const payload = { firstName, lastName, matricule, email, password };
 
     // Send the correctly structured payload
-    this._authService.signUp(formValue).subscribe( // <-- Pass the new object
+    this._authService.signUp(payload).subscribe(
         () => {
             // SUCCESS! Now navigate the user away.
             console.log('Sign-up successful!');

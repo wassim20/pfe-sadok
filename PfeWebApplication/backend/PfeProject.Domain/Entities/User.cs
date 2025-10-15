@@ -24,6 +24,10 @@ namespace PfeProject.Domain.Entities
         // 🔐 Tentatives de login échouées
         public int FailedLoginAttempts { get; set; } = 0;
         public DateTime? LastFailedLogin { get; set; }
+
+        // 🏢 Company relationship
+        public int CompanyId { get; set; }
+        public virtual Company Company { get; set; }
         
         public virtual ICollection<UserRole> UserRoles { get; set; } = new HashSet<UserRole>();
         public ICollection<ReturnLine> ReturnLines { get; set; } = new HashSet<ReturnLine>();

@@ -65,97 +65,75 @@ import { MatDividerModule } from '@angular/material/divider';
           <div class="mt-4 text-secondary">Chargement des mouvements...</div>
         </div>
 
-        <!-- MovementTraces Table/List -->
+        <!-- Grouped MovementTraces by detailPicklistId -->
         <ng-container *ngIf="!loading">
-          <mat-card class="shadow-md rounded-lg overflow-hidden">
-            <mat-card-header class="bg-gray-100 rounded-t-lg">
-              <mat-card-title class="text-xl text-gray-800">Liste des Mouvements</mat-card-title>
-            </mat-card-header>
-            <mat-card-content class="p-0">
-              <div class="overflow-x-auto">
-                <table mat-table [dataSource]="movementTraces" class="min-w-full">
-                  <!-- ID Column -->
-                  <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.id }}</td>
-                  </ng-container>
+          <div *ngFor="let group of groupedTraces" class="mb-6">
+            <mat-card class="shadow-md rounded-lg overflow-hidden">
+              <mat-card-header class="bg-gray-100 rounded-t-lg">
+                <mat-card-title class="text-lg text-gray-800">
+                  Détail Picklist #{{ group.detailPicklistId }}
+                  <span class="text-sm text-gray-500 ml-2">Emplacement: {{ group.detailPicklistEmplacement || '—' }}</span>
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content class="p-0">
+                <div class="overflow-x-auto">
+                  <table mat-table [dataSource]="group.items" class="min-w-full">
+                    <ng-container matColumnDef="id">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.id }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="usNom">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code US</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.usNom }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="dateMouvement">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Mouvement</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.dateMouvement | date:'short' }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="quantite">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.quantite }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="userName">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.userName }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="isActive">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm">
+                        <span [ngClass]="{
+                          'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800': element.isActive,
+                          'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800': !element.isActive
+                        }">
+                          {{ element.isActive ? 'Actif' : 'Inactif' }}
+                        </span>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="actions">
+                      <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
+                        <button mat-icon-button [color]="'primary'" (click)="onView(element)" title="Voir Détails">
+                          <mat-icon>visibility</mat-icon>
+                        </button>
+                        <button mat-icon-button [color]="'warn'" (click)="onReturn(element)" title="Retourner">
+                          <mat-icon>undo</mat-icon>
+                        </button>
+                      </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="['id','usNom','dateMouvement','quantite','userName','isActive','actions']"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['id','usNom','dateMouvement','quantite','userName','isActive','actions']" class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"></tr>
+                  </table>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
 
-                  <!-- UsNom Column -->
-                  <ng-container matColumnDef="usNom">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code US</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.usNom }}</td>
-                  </ng-container>
-
-                  <!-- DateMouvement Column -->
-                  <ng-container matColumnDef="dateMouvement">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Mouvement</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.dateMouvement | date:'short' }}</td>
-                  </ng-container>
-
-                  <!-- Quantite Column -->
-                  <ng-container matColumnDef="quantite">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.quantite }}</td>
-                  </ng-container>
-
-                  <!-- UserId Column -->
-                  <ng-container matColumnDef="userId">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.userName }}</td>
-                  </ng-container>
-
-                  <!-- DetailPicklistId Column -->
-                  <ng-container matColumnDef="detailPicklistId">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Détail Picklist Emplacement</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ element.detailPicklistEmplacement }}</td>
-                  </ng-container>
-
-                  <!-- IsActive Column -->
-                  <ng-container matColumnDef="isActive">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-sm">
-                      <span [ngClass]="{
-                        'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800': element.isActive,
-                        'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800': !element.isActive
-                      }">
-                        {{ element.isActive ? 'Actif' : 'Inactif' }}
-                      </span>
-                    </td>
-                  </ng-container>
-
-                  <!-- Actions Column -->
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef class="px-4 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    <td mat-cell *matCellDef="let element" class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
-                      <button mat-icon-button [color]="'primary'" (click)="onView(element)" title="Voir Détails">
-                        <mat-icon>visibility</mat-icon>
-                      </button>
-                      <!-- <button mat-icon-button [color]="'accent'" (click)="onEdit(element)" title="Modifier">
-                        <mat-icon>edit</mat-icon>
-                      </button> -->
-                      <!-- --- MISE À JOUR : Passer l'objet complet --- -->
-                      <button mat-icon-button [color]="'warn'" (click)="onReturn(element)" title="Retourner">
-                        <mat-icon>undo</mat-icon> <!-- Ou 'reply', 'keyboard_return', etc. -->
-                      </button>
-                      <!-- --- FIN DE LA MISE À JOUR --- -->
-                      <!-- <button mat-icon-button [color]="element.isActive ? 'warn' : 'primary'" (click)="onToggleActive(element.id, element.isActive)" title="{{ element.isActive ? 'Désactiver' : 'Activer' }}">
-                        <mat-icon>{{ element.isActive ? 'toggle_off' : 'toggle_on' }}</mat-icon>
-                      </button> -->
-                    </td>
-                  </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover:bg-gray-50 transition-colors duration-150 ease-in-out"></tr>
-                </table>
-              </div>
-
-              <!-- Empty State -->
-              <div class="flex flex-col items-center justify-center p-8 text-gray-500" *ngIf="movementTraces.length === 0 && !loading">
-                <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="text-6xl block mx-auto mb-4"></mat-icon>
-                <p class="text-lg">Aucun mouvement trouvé.</p>
-                <p class="mt-2 text-center max-w-64">Commencez par créer des mouvements via les picklists.</p>
-              </div>
-            </mat-card-content>
-          </mat-card>
+          <!-- Empty State -->
+          <div class="flex flex-col items-center justify-center p-8 text-gray-500" *ngIf="groupedTraces.length === 0 && !loading">
+            <mat-icon [svgIcon]="'heroicons_outline:inbox'" class="text-6xl block mx-auto mb-4"></mat-icon>
+            <p class="text-lg">Aucun mouvement trouvé.</p>
+            <p class="mt-2 text-center max-w-64">Commencez par créer des mouvements via les picklists.</p>
+          </div>
         </ng-container>
       </div>
     </div>
@@ -177,9 +155,9 @@ import { MatDividerModule } from '@angular/material/divider';
 })
 export class MovementTraceComponent implements OnInit, OnDestroy {
   movementTraces: any[] = [];
+  groupedTraces: Array<{ detailPicklistId: number, detailPicklistEmplacement?: string, items: any[] }> = [];
   loading: boolean = false;
   isActiveFilter: boolean = true; // Default filter
-  displayedColumns: string[] = ['id', 'usNom', 'dateMouvement', 'quantite', 'userId', 'detailPicklistId', 'isActive', 'actions'];
   private destroy$ = new Subject<void>();
   private _unsubscribeAll: Subject<any> = new Subject<any>();
   currentUser: User | null = null; // Stocker l'utilisateur connecté
@@ -217,6 +195,18 @@ export class MovementTraceComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.movementTraces = data || [];
+          // Group by detailPicklistId
+          const groups: { [key: string]: any[] } = {};
+          for (const mt of this.movementTraces) {
+            const key = String(mt.detailPicklistId || 'unknown');
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(mt);
+          }
+          this.groupedTraces = Object.keys(groups).map(k => ({
+            detailPicklistId: k === 'unknown' ? 0 : parseInt(k, 10),
+            detailPicklistEmplacement: groups[k][0]?.detailPicklistEmplacement,
+            items: groups[k]
+          }));
           this.loading = false;
         },
         error: (err) => {
@@ -224,6 +214,7 @@ export class MovementTraceComponent implements OnInit, OnDestroy {
           this._snackBar.open('Erreur lors du chargement des mouvements.', 'Erreur', { duration: 5000 });
           this.loading = false;
           this.movementTraces = [];
+          this.groupedTraces = [];
         }
       });
   }
@@ -244,46 +235,7 @@ export class MovementTraceComponent implements OnInit, OnDestroy {
     });
   }
 
-
- onEdit(movementTrace: any): void {
-    console.log('[MovementTraceComponent] Ouverture du dialogue d\'édition pour ID:', movementTrace.id);
-    const dialogRef = this._dialog.open(MovementTraceEditComponent, {
-    minWidth: '600px',
-    maxHeight: '90vh', // ✅ Limit height of modal      disableClose: false,
-      autoFocus: true,
-      data : { movementTraceData: movementTrace } // Passer l'objet complet
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('[MovementTraceComponent] Dialogue d\'édition fermé avec le résultat:', result);
-      if (result === 'updated') {
-        this._snackBar.open('Mouvement mis à jour avec succès.', 'Succès', { duration: 3000 });
-        this.loadMovementTraces(); // Recharger la liste
-      }
-      // Gérer 'cancelled' ou d'autres résultats si nécessaire
-    });
-  }
-
-  onToggleActive(id: number, currentStatus: boolean): void {
-    this._movementTraceService.setActiveStatus(id, !currentStatus)
-      .pipe(takeUntil(this._unsubscribeAll))
-      .subscribe({
-        next: () => {
-          const index = this.movementTraces.findIndex(mt => mt.id === id);
-          if (index !== -1) {
-            this.movementTraces[index].isActive = !currentStatus;
-          }
-          this._snackBar.open(`Statut du mouvement ID ${id} mis à jour.`, 'Succès', { duration: 3000 });
-        },
-        error: (err) => {
-          console.error('Erreur lors de la mise à jour du statut du mouvement:', err);
-          this._snackBar.open('Erreur lors de la mise à jour du statut du mouvement.', 'Erreur', { duration: 5000 });
-        }
-      });
-  }
-
-  // --- MISE À JOUR DE onReturn ---
-   onReturn(movementTrace: any): void { // <-- Prend l'objet complet
+  onReturn(movementTrace: any): void { // unchanged core logic
     console.log(`[MovementTracesComponent] Initiation du retour pour le MovementTrace ID ${movementTrace?.id}`);
 
     // Vérifier que l'utilisateur est connecté
@@ -300,34 +252,24 @@ export class MovementTraceComponent implements OnInit, OnDestroy {
        return;
     }
 
-    // Vérifier que le MovementTrace n'est pas déjà inactif
     if (!movementTrace.isActive) {
        console.warn(`[MovementTracesComponent] Le MovementTrace ID ${movementTrace.id} est déjà inactif.`);
        this._snackBar.open(`Le mouvement ID ${movementTrace.id} est déjà inactif.`, 'Avertissement', { duration: 3000 });
        return;
     }
 
-    // --- MISE À JOUR : Enchaîner les appels API ---
-    // 1. Appeler le service pour traiter le retour complet (ReturnLine + Sap)
     this._movementTraceService.processReturn(movementTrace, currentUserId).pipe(
       takeUntil(this._unsubscribeAll),
-      // 2. Après le succès de processReturn, désactiver le MovementTrace
       switchMap((processReturnResults) => {
         console.log(`[MovementTracesComponent] processReturn réussi pour MovementTrace ID ${movementTrace.id}. Résultats:`, processReturnResults);
-        // Retourner l'Observable pour setActiveStatus
         return this._movementTraceService.setActiveStatus(movementTrace.id, false).pipe(
-          // Mapper le résultat pour inclure les résultats de processReturn
           map(setActiveResult => ({ processReturnResults, setActiveResult }))
         );
       })
     ).subscribe({
       next: (combinedResults) => {
-        // combinedResults contient { processReturnResults: ..., setActiveResult: ... }
         console.log(`[MovementTracesComponent] Retour et désactivation traités avec succès pour le MovementTrace ID ${movementTrace.id}:`, combinedResults);
-        // Afficher un message de succès
         this._snackBar.open(`Retour initié et mouvement ID ${movementTrace.id} désactivé avec succès. Stock mis à jour.`, 'Succès', { duration: 5000 });
-        
-        // Rafraîchir la liste des MovementTraces pour refléter le changement d'état
         this.loadMovementTraces();
       },
       error: (err) => {
@@ -345,14 +287,9 @@ export class MovementTraceComponent implements OnInit, OnDestroy {
           errorMsg = err.message;
         }
         this._snackBar.open(errorMsg, 'Erreur', { duration: 5000 });
-        // Ne pas fermer le dialogue pour permettre à l'utilisateur de réessayer
-        // Gérer l'erreur (afficher un message, etc.)
       }
     });
-    // --- FIN DE LA MISE À JOUR ---
   }
-
-  // --- FIN DE LA MISE À JOUR ---
 }
 
 

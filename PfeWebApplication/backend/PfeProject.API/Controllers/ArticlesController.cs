@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models.Articles;
+using System.Security.Claims;
 
 namespace PfeProject.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ArticlesController : ControllerBase
     {
         private readonly IArticleService _service;
@@ -19,7 +22,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ArticleReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var articles = await _service.GetAllAsync(isActive);
+            var companyId = GetCurrentUserCompanyId();
+            var articles = await _service.GetAllByCompanyAsync(companyId, isActive);
             return Ok(articles);
         }
 
@@ -27,7 +31,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ArticleReadDto>> GetById(int id)
         {
-            var article = await _service.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId();
+            var article = await _service.GetByIdAndCompanyAsync(id, companyId);
             if (article == null) return NotFound();
             return Ok(article);
         }
@@ -36,7 +41,8 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<ActionResult<ArticleReadDto>> Create([FromBody] ArticleCreateDto dto)
         {
-            var created = await _service.CreateAsync(dto);
+            var companyId = GetCurrentUserCompanyId();
+            var created = await _service.CreateForCompanyAsync(dto, companyId);
             return Ok(created);
         }
 
@@ -44,7 +50,8 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] ArticleUpdateDto dto)
         {
-            var success = await _service.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId();
+            var success = await _service.UpdateForCompanyAsync(id, dto, companyId);
             if (!success) return NotFound();
             return NoContent();
         }
@@ -53,9 +60,20 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}/set-active")]
         public async Task<IActionResult> SetActive(int id, [FromQuery] bool value)
         {
-            var success = await _service.SetActiveStatusAsync(id, value);
+            var companyId = GetCurrentUserCompanyId();
+            var success = await _service.SetActiveStatusForCompanyAsync(id, value, companyId);
             if (!success) return NotFound();
             return NoContent();
+        }
+
+        private int GetCurrentUserCompanyId()
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
         }
     }
 }
