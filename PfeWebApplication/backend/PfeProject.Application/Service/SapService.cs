@@ -120,6 +120,91 @@ namespace PfeProject.Application.Services
             }
         }
 
+        // Company-aware methods
+        public async Task<IEnumerable<SapReadDto>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
+        {
+            var saps = await _repository.GetAllByCompanyAsync(companyId, isActive);
+            return saps.Select(s => new SapReadDto
+            {
+                Id = s.Id,
+                Article = s.Article,
+                UsCode = s.UsCode,
+                Quantite = s.Quantite,
+                IsActive = s.IsActive
+            });
+        }
 
+        public async Task<SapReadDto?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            var sap = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (sap == null)
+                return null;
+
+            return new SapReadDto
+            {
+                Id = sap.Id,
+                Article = sap.Article,
+                UsCode = sap.UsCode,
+                Quantite = sap.Quantite,
+                IsActive = sap.IsActive
+            };
+        }
+
+        public async Task<SapReadDto> CreateForCompanyAsync(SapCreateDto dto, int companyId)
+        {
+            var sap = new Sap
+            {
+                Article = dto.Article,
+                UsCode = dto.UsCode,
+                Quantite = dto.Quantite,
+                IsActive = true,
+                CompanyId = companyId
+            };
+
+            await _repository.AddAsync(sap);
+
+            return new SapReadDto
+            {
+                Id = sap.Id,
+                Article = sap.Article,
+                UsCode = sap.UsCode,
+                Quantite = sap.Quantite,
+                IsActive = sap.IsActive
+            };
+        }
+
+        public async Task<bool> UpdateForCompanyAsync(int id, SapUpdateDto dto, int companyId)
+        {
+            var sap = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (sap == null)
+                return false;
+
+            sap.Article = dto.Article;
+            sap.UsCode = dto.UsCode;
+            sap.Quantite = dto.Quantite;
+
+            await _repository.UpdateAsync(sap);
+            return true;
+        }
+
+        public async Task<bool> SetActiveStatusForCompanyAsync(int id, bool isActive, int companyId)
+        {
+            var exists = await _repository.ExistsByIdAndCompanyAsync(id, companyId);
+            if (!exists)
+                return false;
+
+            await _repository.SetActiveStatusAsync(id, isActive);
+            return true;
+        }
+
+        public async Task<bool> DeleteForCompanyAsync(int id, int companyId)
+        {
+            var exists = await _repository.ExistsByIdAndCompanyAsync(id, companyId);
+            if (!exists)
+                return false;
+
+            await _repository.DeleteAsync(id);
+            return true;
+        }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using PfeProject.Application.Interfaces;
+using PfeProject.Application.Models.DetailPicklists;
+using PfeProject.Application.Models.Statuses;
 using PfeProject.Domain.Entities;
 using PfeProject.Domain.Interfaces;
 
@@ -19,7 +21,7 @@ namespace PfeProject.Application.Services
             return list.Select(d => new DetailPicklistReadDto
             {
                 Id = d.Id,
-               
+
                 PicklistId = d.PicklistId,
                 Article = d.Article == null ? null : new ArticleDto
                 {
@@ -27,7 +29,7 @@ namespace PfeProject.Application.Services
                     Designation = d.Article.Designation
                 },
 
-                Status = d.Status == null ? null : new StatusDto
+                Status = d.Status == null ? null : new PfeProject.Application.Models.Statuses.StatusReadDto
                 {
                     Id = d.Status.Id,
                     Description = d.Status.Description
@@ -46,7 +48,7 @@ namespace PfeProject.Application.Services
             return new DetailPicklistReadDto
             {
                 Id = d.Id,
-               
+
                 PicklistId = d.PicklistId,
                 Article = d.Article == null ? null : new ArticleDto
                 {
@@ -54,7 +56,7 @@ namespace PfeProject.Application.Services
                     Designation = d.Article.Designation
                 },
 
-                Status = d.Status == null ? null : new StatusDto
+                Status = d.Status == null ? null : new PfeProject.Application.Models.Statuses.StatusReadDto
                 {
                     Id = d.Status.Id,
                     Description = d.Status.Description
@@ -82,7 +84,7 @@ namespace PfeProject.Application.Services
             return new DetailPicklistReadDto
             {
                 Id = entity.Id,
-                
+
                 PicklistId = entity.PicklistId,
                 Article = entity.Article == null ? null : new ArticleDto
                 {
@@ -90,7 +92,7 @@ namespace PfeProject.Application.Services
                     Designation = entity.Article.Designation
                 },
 
-                Status = entity.Status == null ? null : new StatusDto
+                Status = entity.Status == null ? null : new PfeProject.Application.Models.Statuses.StatusReadDto
                 {
                     Id = entity.Status.Id,
                     Description = entity.Status.Description
@@ -143,7 +145,7 @@ namespace PfeProject.Application.Services
                     CodeProduit = d.Article.CodeProduit
                 },
 
-                Status = d.Status == null ? null : new StatusDto
+                Status = d.Status == null ? null : new PfeProject.Application.Models.Statuses.StatusReadDto
                 {
                     Id = d.Status.Id,
                     Description = d.Status.Description
@@ -151,6 +153,136 @@ namespace PfeProject.Application.Services
             });
         }
 
+        // Company-aware methods
+        public async Task<IEnumerable<DetailPicklistReadDto>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
+        {
+            var list = await _repository.GetAllByCompanyAsync(companyId, isActive);
+            return list.Select(d => new DetailPicklistReadDto
+            {
+                Id = d.Id,
+                PicklistId = d.PicklistId,
+                Article = d.Article == null ? null : new ArticleDto
+                {
+                    Id = d.Article.Id,
+                    Designation = d.Article.Designation
+                },
+                Status = d.Status == null ? null : new PfeProject.Application.Models.Statuses.StatusReadDto
+                {
+                    Id = d.Status.Id,
+                    Description = d.Status.Description
+                },
+                Emplacement = d.Emplacement,
+                Quantite = d.Quantite,
+                IsActive = d.IsActive
+            });
+        }
 
+        public async Task<DetailPicklistReadDto?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            var d = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (d == null) return null;
+
+            return new DetailPicklistReadDto
+            {
+                Id = d.Id,
+                PicklistId = d.PicklistId,
+                Article = d.Article == null ? null : new ArticleDto
+                {
+                    Id = d.Article.Id,
+                    Designation = d.Article.Designation
+                },
+                Status = d.Status == null ? null : new PfeProject.Application.Models.Statuses.StatusReadDto
+                {
+                    Id = d.Status.Id,
+                    Description = d.Status.Description
+                },
+                Emplacement = d.Emplacement,
+                Quantite = d.Quantite,
+                IsActive = d.IsActive
+            };
+        }
+
+        public async Task<DetailPicklistReadDto> CreateForCompanyAsync(DetailPicklistCreateDto dto, int companyId)
+        {
+            var entity = new DetailPicklist
+            {
+                ArticleId = dto.ArticleId,
+                PicklistId = dto.PicklistId,
+                StatusId = dto.StatusId,
+                Emplacement = dto.Emplacement,
+                Quantite = dto.Quantite,
+                IsActive = true,
+                CompanyId = companyId // 🏢 Set Company relationship
+            };
+
+            await _repository.AddAsync(entity);
+
+            return new DetailPicklistReadDto
+            {
+                Id = entity.Id,
+                PicklistId = entity.PicklistId,
+                Article = entity.Article == null ? null : new ArticleDto
+                {
+                    Id = entity.Article.Id,
+                    Designation = entity.Article.Designation
+                },
+                Status = entity.Status == null ? null : new PfeProject.Application.Models.Statuses.StatusReadDto
+                {
+                    Id = entity.Status.Id,
+                    Description = entity.Status.Description
+                },
+                Emplacement = entity.Emplacement,
+                Quantite = entity.Quantite,
+                IsActive = entity.IsActive
+            };
+        }
+
+        public async Task<bool> UpdateForCompanyAsync(int id, DetailPicklistUpdateDto dto, int companyId)
+        {
+            var entity = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (entity == null) return false;
+
+            entity.Emplacement = dto.Emplacement;
+            entity.Quantite = dto.Quantite;
+            entity.StatusId = dto.StatusId;
+
+            await _repository.UpdateAsync(entity);
+            return true;
+        }
+
+        public async Task<IEnumerable<DetailPicklistReadDto>> GetByPicklistIdAndCompanyAsync(int picklistId, int companyId)
+        {
+            var list = await _repository.GetByPicklistIdAndCompanyAsync(picklistId, companyId);
+
+            return list.Select(d => new DetailPicklistReadDto
+            {
+                Id = d.Id,
+                PicklistId = d.PicklistId,
+                Emplacement = d.Emplacement,
+                Quantite = d.Quantite,
+                IsActive = d.IsActive,
+                Article = d.Article == null ? null : new ArticleDto
+                {
+                    Id = d.Article.Id,
+                    Designation = d.Article.Designation,
+                    CodeProduit = d.Article.CodeProduit
+                },
+                Status = d.Status == null ? null : new PfeProject.Application.Models.Statuses.StatusReadDto
+                {
+                    Id = d.Status.Id,
+                    Description = d.Status.Description
+                }
+            });
+        }
+
+        public async Task<bool> DeleteForCompanyAsync(int id, int companyId)
+        {
+            var exists = await _repository.ExistsByIdAndCompanyAsync(id, companyId);
+            if (!exists)
+                return false;
+
+            await _repository.DeleteAsync(id);
+            return true;
+        }
     }
 }

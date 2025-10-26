@@ -77,5 +77,27 @@ namespace PfeProject.Infrastructure.Repositories
                     .ThenInclude(ur => ur.Role)
                 .ToListAsync();
         }
+
+        public async Task<bool> AnyUsersExistAsync()
+        {
+            return await _context.Users.AnyAsync();
+        }
+
+        public async Task<IReadOnlyList<User>> GetAllByCompanyAsync(int companyId)
+        {
+            return await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .Where(u => u.CompanyId == companyId && u.State)
+                .ToListAsync();
+        }
+
+        public async Task<User> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            return await _context.Users
+                .Include(u => u.UserRoles)
+                    .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Id == id && u.CompanyId == companyId && u.State);
+        }
     }
 }

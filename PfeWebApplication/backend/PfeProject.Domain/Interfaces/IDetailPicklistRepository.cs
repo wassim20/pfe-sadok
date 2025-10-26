@@ -1,9 +1,12 @@
 ﻿using PfeProject.Domain.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PfeProject.Domain.Interfaces
 {
     public interface IDetailPicklistRepository
     {
+        // Legacy methods
         Task<List<DetailPicklist>> GetAllAsync(bool? isActive = true);
         Task<List<DetailPicklist>> GetAllActiveAsync();
         Task<DetailPicklist?> GetByIdAsync(int id);
@@ -14,5 +17,11 @@ namespace PfeProject.Domain.Interfaces
         Task<bool> ExistsAsync(int id);
         Task<IEnumerable<DetailPicklist>> GetByPicklistIdAsync(int picklistId);
 
+        // Company-aware methods
+        Task<List<DetailPicklist>> GetAllByCompanyAsync(int companyId, bool? isActive = true);
+        Task<DetailPicklist?> GetByIdAndCompanyAsync(int id, int companyId);
+        Task<bool> ExistsByIdAndCompanyAsync(int id, int companyId);
+        Task DeleteAsync(int id);
+        Task<IEnumerable<DetailPicklist>> GetByPicklistIdAndCompanyAsync(int picklistId, int companyId);
     }
 }

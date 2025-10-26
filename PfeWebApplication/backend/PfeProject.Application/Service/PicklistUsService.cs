@@ -1,4 +1,5 @@
 ﻿using PfeProject.Application.Interfaces;
+using PfeProject.Application.Models.PicklistUSs;
 using PfeProject.Domain.Entities;
 using PfeProject.Domain.Interfaces;
 
@@ -87,5 +88,59 @@ public class PicklistUsService : IPicklistUsService
             StatusLabel = entity.Status?.Description,
             IsActive = entity.IsActive
         };
+    }
+
+    // Company-aware methods
+    public async Task<IEnumerable<PicklistUsReadDto>> GetFilteredByCompanyAsync(PicklistUsFilterDto filter, int companyId)
+    {
+        var list = await _repository.GetFilteredByCompanyAsync(
+            filter.StatusId,
+            filter.UserId,
+            filter.DetailPicklistId,
+            filter.IsActive,
+            filter.Nom,
+            companyId
+        );
+
+        return list.Select(MapToReadDto);
+    }
+
+    public async Task<PicklistUsReadDto?> GetByIdAndCompanyAsync(int id, int companyId)
+    {
+        var entity = await _repository.GetByIdAndCompanyAsync(id, companyId);
+        return entity is null ? null : MapToReadDto(entity);
+    }
+
+    public async Task<PicklistUsReadDto> CreateForCompanyAsync(PicklistUsCreateDto dto, int companyId)
+    {
+        var entity = new PicklistUs
+        {
+            Nom = dto.Nom,
+            Quantite = dto.Quantite,
+            UserId = dto.UserId,
+            DetailPicklistId = dto.DetailPicklistId,
+            StatusId = dto.StatusId,
+            Date = DateTime.Now,
+            IsActive = true,
+            CompanyId = companyId // 🏢 Set Company relationship
+        };
+
+        var created = await _repository.AddAsync(entity);
+        return MapToReadDto(created);
+    }
+
+    public async Task<bool> UpdateForCompanyAsync(int id, PicklistUsUpdateDto dto, int companyId)
+    {
+        var entity = await _repository.GetByIdAndCompanyAsync(id, companyId);
+        if (entity == null || !entity.IsActive) return false;
+
+        entity.Nom = dto.Nom;
+        entity.Quantite = dto.Quantite;
+        entity.UserId = dto.UserId;
+        entity.DetailPicklistId = dto.DetailPicklistId;
+        entity.StatusId = dto.StatusId;
+
+        await _repository.UpdateAsync(entity);
+        return true;
     }
 }

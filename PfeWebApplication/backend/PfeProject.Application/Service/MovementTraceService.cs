@@ -1,4 +1,5 @@
 ﻿using PfeProject.Application.Interfaces;
+using PfeProject.Application.Models.MovementTraces;
 using PfeProject.Application.Models.ReturnLines;
 using PfeProject.Application.Service;
 using PfeProject.Domain.Entities;
@@ -163,6 +164,125 @@ namespace PfeProject.Application.Services
             }
 
             // 6. Retourner le ReturnLineReadDto créé
+            return createdReturnLine;
+        }
+
+        // Company-aware methods
+        public async Task<IEnumerable<MovementTraceReadDto>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
+        {
+            var list = await _repository.GetAllByCompanyAsync(companyId, isActive);
+            return list.Select(mt => new MovementTraceReadDto
+            {
+                Id = mt.Id,
+                UsNom = mt.UsNom,
+                Quantite = mt.Quantite,
+                DateMouvement = mt.DateMouvement,
+                UserId = mt.UserId,
+                DetailPicklistId = mt.DetailPicklistId,
+                DetailPicklistEmplacement = mt.DetailPicklist?.Emplacement,
+                UserName = mt.User.FirstName + " " + mt.User.LastName,
+                ArticleId = mt.DetailPicklist?.ArticleId ?? 0,
+                IsActive = mt.IsActive
+            });
+        }
+
+        public async Task<MovementTraceReadDto?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            var mt = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (mt == null) return null;
+
+            return new MovementTraceReadDto
+            {
+                Id = mt.Id,
+                UsNom = mt.UsNom,
+                Quantite = mt.Quantite,
+                DateMouvement = mt.DateMouvement,
+                UserId = mt.UserId,
+                DetailPicklistId = mt.DetailPicklistId,
+                ArticleId = mt.DetailPicklist?.ArticleId ?? 0,
+                IsActive = mt.IsActive
+            };
+        }
+
+        public async Task<MovementTraceReadDto> CreateForCompanyAsync(MovementTraceCreateDto dto, int companyId)
+        {
+            var mt = new MovementTrace
+            {
+                UsNom = dto.UsNom,
+                Quantite = dto.Quantite,
+                UserId = dto.UserId,
+                DetailPicklistId = dto.DetailPicklistId,
+                IsActive = true,
+                CompanyId = companyId // 🏢 Set Company relationship
+            };
+
+            await _repository.AddAsync(mt);
+
+            return new MovementTraceReadDto
+            {
+                Id = mt.Id,
+                UsNom = mt.UsNom,
+                Quantite = mt.Quantite,
+                DateMouvement = mt.DateMouvement,
+                UserId = mt.UserId,
+                DetailPicklistId = mt.DetailPicklistId,
+                ArticleId = mt.DetailPicklist?.ArticleId ?? 0,
+                IsActive = mt.IsActive
+            };
+        }
+
+        public async Task<ReturnLineReadDto?> CreateReturnLineAndAddStockForCompanyAsync(int movementTraceId, int userId, int companyId)
+        {
+            Console.WriteLine($"[MovementTraceService] Création de ReturnLine et ajout de stock pour MovementTrace ID {movementTraceId} par l'utilisateur ID {userId} dans l'entreprise {companyId}.");
+
+            // 1. Récupérer le MovementTrace avec ses relations (DetailPicklist, Article) - company-aware
+            var movementTrace = await _repository.GetByIdAndCompanyAsync(movementTraceId, companyId);
+            if (movementTrace == null)
+            {
+                Console.WriteLine($"[MovementTraceService] MovementTrace ID {movementTraceId} non trouvé pour l'entreprise {companyId}.");
+                return null;
+            }
+
+            // Rest of the logic remains the same as the original method
+            var articleId = movementTrace.DetailPicklist?.ArticleId ?? 0;
+            if (articleId <= 0)
+            {
+                Console.WriteLine($"[MovementTraceService] ArticleId invalide pour MovementTrace ID {movementTraceId}.");
+                return null;
+            }
+
+            // 3. Créer le ReturnLineCreateDto
+            var returnLineCreateDto = new ReturnLineCreateDto
+            {
+                UsCode = movementTrace.UsNom ?? $"TRACE-{movementTraceId}",
+                Quantite = movementTrace.Quantite ?? "1",
+                ArticleId = articleId,
+                UserId = userId,
+                StatusId = 1
+            };
+
+            // 4. Créer le ReturnLine via le ReturnLineService
+            var createdReturnLine = await _returnLineService.CreateAsync(returnLineCreateDto);
+            if (createdReturnLine == null)
+            {
+                Console.WriteLine($"[MovementTraceService] Échec de la création du ReturnLine pour MovementTrace ID {movementTraceId}.");
+                return null;
+            }
+
+            // 5. Mettre à jour le stock SAP
+            int quantityToAdd = 1;
+            if (!string.IsNullOrWhiteSpace(movementTrace.Quantite) && !int.TryParse(movementTrace.Quantite, out quantityToAdd))
+            {
+                Console.WriteLine($"[MovementTraceService] Conversion de Quantite '{movementTrace.Quantite}' en int échouée pour MovementTrace ID {movementTraceId}. Utilisation de 1 par défaut.");
+                quantityToAdd = 1;
+            }
+
+            var stockUpdated = await _sapService.AddStockAsync(movementTrace.UsNom, quantityToAdd);
+            if (!stockUpdated)
+            {
+                Console.WriteLine($"[MovementTraceService] Échec de la mise à jour du stock SAP pour US '{movementTrace.UsNom}'.");
+            }
+
             return createdReturnLine;
         }
     }

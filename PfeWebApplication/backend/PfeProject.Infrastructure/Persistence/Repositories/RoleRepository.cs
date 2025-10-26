@@ -53,5 +53,25 @@ namespace PfeProject.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        // Company-aware methods
+        public async Task<IReadOnlyList<Role>> GetAllRolesByCompanyAsync(int companyId)
+        {
+            return await _context.Roles
+                .Where(r => r.CompanyId == companyId) // 🏢 Filter by CompanyId
+                .ToListAsync();
+        }
+
+        public async Task<Role> GetRoleByIdAndCompanyAsync(int id, int companyId)
+        {
+            return await _context.Roles
+                .FirstOrDefaultAsync(r => r.Id == id && r.CompanyId == companyId); // 🏢 Filter by CompanyId
+        }
+
+        public async Task<Role> GetByNameAndCompanyAsync(string roleName, int companyId)
+        {
+            return await _context.Roles
+                .FirstOrDefaultAsync(r => r.Name == roleName && r.CompanyId == companyId); // 🏢 Filter by CompanyId
+        }
     }
 }

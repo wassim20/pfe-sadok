@@ -3,24 +3,32 @@
   <!-- Title -->
   <h2 class="text-2xl font-bold">Gestion des Rôles Utilisateur</h2>
 
-  <!-- Create User Toggle -->
+  <!-- Invite User Toggle -->
   <div class="flex justify-end">
-    <button mat-flat-button color="primary" (click)="toggleCreateUser()">
-      {{ showCreateUser ? 'Fermer' : 'Créer un utilisateur' }}
+    <button mat-flat-button color="primary" (click)="toggleInviteUser()">
+      {{ showInviteUser ? 'Fermer' : 'Inviter un utilisateur' }}
     </button>
   </div>
 
-  <!-- Create User Form -->
-  <div *ngIf="showCreateUser" class="p-4 bg-white rounded border space-y-3">
+  <!-- Invite User Form -->
+  <div *ngIf="showInviteUser" class="p-4 bg-white rounded border space-y-3">
+    <h3 class="text-lg font-semibold mb-3">Inviter un utilisateur dans l'entreprise</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-      <input class="border p-2 rounded" placeholder="Prénom" [(ngModel)]="createUserPayload.firstName" name="firstName">
-      <input class="border p-2 rounded" placeholder="Nom" [(ngModel)]="createUserPayload.lastName" name="lastName">
-      <input class="border p-2 rounded" placeholder="Matricule" [(ngModel)]="createUserPayload.matricule" name="matricule">
-      <input class="border p-2 rounded" placeholder="Email" [(ngModel)]="createUserPayload.email" name="email">
-      <input class="border p-2 rounded" placeholder="Mot de passe" [(ngModel)]="createUserPayload.password" name="password" type="password">
+      <input class="border p-2 rounded" placeholder="Prénom" [(ngModel)]="inviteUserPayload.firstName" name="firstName">
+      <input class="border p-2 rounded" placeholder="Nom" [(ngModel)]="inviteUserPayload.lastName" name="lastName">
+      <input class="border p-2 rounded" placeholder="Matricule" [(ngModel)]="inviteUserPayload.matricule" name="matricule">
+      <input class="border p-2 rounded" placeholder="Email" [(ngModel)]="inviteUserPayload.email" name="email">
+      <input class="border p-2 rounded" placeholder="Mot de passe" [(ngModel)]="inviteUserPayload.password" name="password" type="password">
+      <mat-form-field appearance="outline">
+        <mat-label>Rôle</mat-label>
+        <mat-select [(ngModel)]="inviteUserPayload.role" name="role">
+          <mat-option value="User">User</mat-option>
+          <mat-option value="Admin">Admin</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
     <div class="flex justify-end">
-      <button mat-flat-button color="accent" (click)="createUser()">Créer</button>
+      <button mat-flat-button color="accent" (click)="inviteUser()">Inviter</button>
     </div>
   </div>
 

@@ -16,6 +16,7 @@ import JsBarcode from 'jsbarcode';
 import { concat, concatMap, from, Observable, Subject, takeUntil } from 'rxjs';
 import { UserService } from 'app/core/user/user.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { LocationService } from '../../location/location.service';
 
 @Component({
@@ -32,7 +33,9 @@ import { LocationService } from '../../location/location.service';
     MatIconModule,
     MatCardModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatCheckboxModule
   ],
   templateUrl: './details.component.html',
   styleUrls: ['./details.component.scss']
@@ -42,7 +45,7 @@ export class DetailsComponent implements OnInit {
   totalPicklistQuantity: number = 0;
   isAllAvailable: boolean = false; // Initialize
   private _unsubscribeAll: Subject<any> = new Subject<any>();
-    articles: any[] = []; // Ajouter cette propriété pour stocker les articles
+  articles: any[] = []; // Ajouter cette propriété pour stocker les articles
 
 
   @ViewChildren('barcodeRef') barcodeElements!: QueryList<ElementRef>;
@@ -285,64 +288,47 @@ checkAvailability() {
   }
 
   // Prepare data for the backend check
-  // Send the detail picklist items. The backend should be able to identify them
-  // via their 'id' field to correlate with the response.
   const detailsForCheck = this.detailPicklists.map(detail => ({
-    // Send the whole detail object or just the ID if the backend only needs that for correlation.
-    // Sending the whole object is safer if the backend needs other fields for the check.
     ...detail
-    // Alternatively, if backend only needs ID:
-    // id: detail.id
   }));
   console.log('Sending for availability check:', detailsForCheck);
 
   this.picklistService.checkInventoryAvailability(detailsForCheck).subscribe({
-    next: (availability) => { // Type this properly if you have the DTO interface
+    next: (availability) => {
       console.log('Availability response received:', availability);
+      
       if (availability.length !== this.detailPicklists.length) {
         console.error('Availability response length mismatch');
         this._snackBar.open('Erreur de données de disponibilité', 'Erreur', { duration: 5000 });
         return;
       }
 
-      // --- KEY CHANGE HERE ---
-      // Update detailPicklists by *merging* availability info, not replacing objects
-      // Use map to create a new array, ensuring change detection works
+      // Update detailPicklists by merging availability info
       const updatedDetails = this.detailPicklists.map((detail, index) => ({
-        // Spread the original detail object to keep all its properties
         ...detail,
-        // Add or overwrite the availability properties from the response
         isAvailable: availability[index].isAvailable,
         availableQuantity: availability[index].availableQuantity
-        // requestedQuantity and codeProduit are in the response but might not be needed
-        // on the main object if they are already present (e.g., detail.quantite, detail.article?.codeProduit)
-        // requestedQuantity: availability[index].requestedQuantity,
-        // codeProduit: availability[index].codeProduit
       }));
 
-      // 1. Update the component's property with the merged data
       this.detailPicklists = updatedDetails;
       console.log(this.detailPicklists);
-      
 
-      // 2. Determine if all items are available
+      // Determine if all items are available
       this.isAllAvailable = this.detailPicklists.every(detail => detail.isAvailable === true);
       console.log('All items available:', this.isAllAvailable);
 
-      // 3. Show success snackbar
+      // Show success snackbar
       this._snackBar.open('Disponibilité vérifiée.', 'Succès', { duration: 3000 });
 
-      // 4. --- Open the dialog AFTER the data is updated ---
+      // Open the dialog AFTER the data is updated
       const dialogRef = this.dialog.open(AvailabilityDialogComponent, {
         width: '600px',
-        // Pass the updated data
-        data: { details: this.detailPicklists } // or [...this.detailPicklists]
+        data: { details: this.detailPicklists }
       });
 
       dialogRef.afterClosed().subscribe(result => {
         console.log('Dialog closed with result:', result);
         this.generateBarcodes();
-        // Handle dialog close if needed in the future
       });
     },
     error: (e) => {
@@ -352,6 +338,33 @@ checkAvailability() {
         errorMsg = e.error.message;
       }
       this._snackBar.open(errorMsg, 'Erreur', { duration: 5000 });
+    }
+  });
+}
+
+deleteDetail(detailId: number): void {
+  const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+    width: '400px',
+    data: {
+      title: 'Confirmer la suppression',
+      message: 'Êtes-vous sûr de vouloir supprimer cet article ?',
+      confirmText: 'Supprimer',
+      cancelText: 'Annuler'
+    }
+  });
+
+  confirmDialog.afterClosed().subscribe(result => {
+    if (result === 'confirm') {
+      this.picklistService.deleteDetailPicklist(detailId).subscribe({
+        next: () => {
+          this._snackBar.open('Article supprimé avec succès.', 'Succès', { duration: 3000 });
+          this.loadDetailPicklists(this.picklistId);
+        },
+        error: (err) => {
+          console.error('Error deleting detail:', err);
+          this._snackBar.open('Erreur lors de la suppression de l\'article.', 'Erreur', { duration: 5000 });
+        }
+      });
     }
   });
 }
@@ -709,3 +722,48 @@ export class AddDetailPicklistDialogComponent implements OnInit {
   }
 }
 // --- Fin du composant AddDetailPicklistDialogComponent ---
+
+// Confirmation Dialog Component
+@Component({
+  selector: 'app-confirm-dialog',
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, MatButtonModule],
+  template: `
+    <div class="p-6">
+      <h2 mat-dialog-title class="text-xl font-semibold text-white mb-4">{{ data.title }}</h2>
+      <div mat-dialog-content class="mb-6">
+        <p class="text-gray-300">{{ data.message }}</p>
+      </div>
+      <div mat-dialog-actions class="flex justify-end space-x-3">
+        <button mat-button (click)="onCancel()" class="text-gray-400 hover:text-white">
+          {{ data.cancelText || 'Annuler' }}
+        </button>
+        <button mat-raised-button color="warn" (click)="onConfirm()">
+          {{ data.confirmText || 'Confirmer' }}
+        </button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    :host { display: block; }
+  `]
+})
+export class ConfirmDialogComponent {
+  constructor(
+    public dialogRef: MatDialogRef<ConfirmDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: {
+      title: string;
+      message: string;
+      confirmText?: string;
+      cancelText?: string;
+    }
+  ) {}
+
+  onConfirm(): void {
+    this.dialogRef.close('confirm');
+  }
+
+  onCancel(): void {
+    this.dialogRef.close('cancel');
+  }
+}

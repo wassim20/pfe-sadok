@@ -11,6 +11,10 @@ namespace PfeProject.Domain.Entities
         public DateTime UpdateDate { get; set; } = DateTime.UtcNow;
         public bool State { get; set; } = true;         // Active/inactive
 
+        // 🏢 Company relationship
+        public int CompanyId { get; set; }
+        public virtual Company Company { get; set; }
+
         // Navigation: Many-to-many via UserRole
         public virtual ICollection<UserRole> UserRoles { get; set; } = new HashSet<UserRole>();
     }

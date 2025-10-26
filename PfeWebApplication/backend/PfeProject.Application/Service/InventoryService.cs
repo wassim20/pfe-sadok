@@ -68,6 +68,61 @@ namespace PfeProject.Application.Services
             return true;
         }
 
+        public async Task<IEnumerable<InventoryReadDto>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
+        {
+            var inventories = await _repository.GetAllByCompanyAsync(companyId, isActive);
+            return inventories.Select(i => new InventoryReadDto
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Status = i.Status,
+                DateInventaire = i.DateInventaire,
+                IsActive = i.IsActive
+            });
+        }
+
+        public async Task<InventoryReadDto?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            var inventory = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (inventory == null || !inventory.IsActive)
+                return null;
+
+            return new InventoryReadDto
+            {
+                Id = inventory.Id,
+                Name = inventory.Name,
+                Status = inventory.Status,
+                DateInventaire = inventory.DateInventaire,
+                IsActive = inventory.IsActive
+            };
+        }
+
+        public async Task CreateForCompanyAsync(InventoryCreateDto dto, int companyId)
+        {
+            var inventory = new Inventory
+            {
+                Name = dto.Name,
+                Status = dto.Status,
+                DateInventaire = DateTime.UtcNow,
+                IsActive = true,
+                CompanyId = companyId  // 🏢 Set Company relationship
+            };
+
+            await _repository.AddAsync(inventory);
+        }
+
+        public async Task<bool> UpdateForCompanyAsync(int id, int companyId, InventoryUpdateDto dto)
+        {
+            var inventory = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (inventory == null || !inventory.IsActive)
+                return false;
+
+            inventory.Name = dto.Name;
+            inventory.Status = dto.Status;
+            await _repository.UpdateAsync(inventory);
+            return true;
+        }
+
         public async Task<bool> SetActiveStatusAsync(int id, bool isActive)
         {
             var exists = await _repository.ExistsAsync(id);

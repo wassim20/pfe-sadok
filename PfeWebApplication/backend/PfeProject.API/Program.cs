@@ -10,6 +10,7 @@ using PfeProject.Infrastructure.Persistence;
 using PfeProject.Infrastructure.Repositories;
 using PfeProject.API.Middlewares;
 using System.Text;
+using Prometheus;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +27,7 @@ builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<DataSeeder>();
-builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.AddScoped<IPicklistService, PicklistService>();
 builder.Services.AddScoped<IPicklistRepository, PicklistRepository>();
@@ -40,7 +41,7 @@ builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<ISapService, SapService>();
-builder.Services.AddScoped<ISapRepository,SapRepository>();
+builder.Services.AddScoped<ISapRepository, SapRepository>();
 builder.Services.AddScoped<IDetailInventoryRepository, DetailInventoryRepository>();
 builder.Services.AddScoped<IDetailInventoryService, DetailInventoryService>();
 builder.Services.AddScoped<IDetailPicklistService, DetailPicklistService>();
@@ -129,11 +130,20 @@ builder.Services.AddCors(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
+// ===== 6. Prometheus Metrics Configuration =====
+// Prometheus metrics are automatically configured by prometheus-net.AspNetCore
+
 var app = builder.Build();
 
-// ===== 6. Seeding Data (création admin, rôles...) =====
+// ===== 6. Database Migration and Seeding =====
 using (var scope = app.Services.CreateScope())
 {
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    // Ensure database is created and migrations are applied
+    await context.Database.EnsureCreatedAsync();
+
+    // Seed data
     var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
     await seeder.SeedAsync();
 }
@@ -150,11 +160,17 @@ app.UseHttpsRedirection();
 // 👇 IMPORTANT : CORS doit être avant Authentication
 app.UseCors("AllowAngularApp");
 
+// Add Prometheus HTTP metrics middleware
+app.UseHttpMetrics();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Add company data isolation middleware
 app.UseMiddleware<CompanyDataIsolationMiddleware>();
+
+// Map Prometheus metrics endpoint
+app.UseMetricServer();
 
 app.MapControllers();
 

@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models.ReturnLines;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace PfeProject.API.Controllers
 {
@@ -23,7 +22,8 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ReturnLineCreateDto dto)
         {
-            var result = await _returnLineService.CreateAsync(dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var result = await _returnLineService.CreateForCompanyAsync(dto, companyId); // 🏢 Use company-aware method
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
@@ -31,7 +31,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ReturnLineReadDto>>> GetAll()
         {
-            var result = await _returnLineService.GetAllAsync();
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var result = await _returnLineService.GetAllByCompanyAsync(companyId); // 🏢 Use company-aware method
             return Ok(result);
         }
 
@@ -39,7 +40,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ReturnLineReadDto>> GetById(int id)
         {
-            var result = await _returnLineService.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var result = await _returnLineService.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
             if (result == null) return NotFound();
             return Ok(result);
         }
@@ -48,7 +50,8 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] ReturnLineUpdateDto dto)
         {
-            var updated = await _returnLineService.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var updated = await _returnLineService.UpdateForCompanyAsync(id, dto, companyId); // 🏢 Use company-aware method
             if (!updated) return NotFound();
             return NoContent();
         }
@@ -60,6 +63,16 @@ namespace PfeProject.API.Controllers
             var deleted = await _returnLineService.DeleteAsync(id);
             if (!deleted) return NotFound();
             return NoContent();
+        }
+
+        private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
         }
     }
 }

@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
+using PfeProject.Application.Models.DetailPicklists;
 using PfeProject.Application.Services;
+using System.Security.Claims;
 
 namespace PfeProject.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🏢 Added authorization
     public class DetailPicklistsController : ControllerBase
     {
         private readonly IDetailPicklistService _service;
@@ -21,7 +25,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DetailPicklistReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var result = await _service.GetAllAsync(isActive);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var result = await _service.GetAllByCompanyAsync(companyId, isActive); // 🏢 Use company-aware method
             return Ok(result);
         }
 
@@ -29,7 +34,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DetailPicklistReadDto>> GetById(int id)
         {
-            var item = await _service.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var item = await _service.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
             if (item == null)
                 return NotFound();
 
@@ -40,7 +46,8 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<ActionResult<DetailPicklistReadDto>> Create([FromBody] DetailPicklistCreateDto dto)
         {
-            var created = await _service.CreateAsync(dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var created = await _service.CreateForCompanyAsync(dto, companyId); // 🏢 Use company-aware method
             return Ok(created);
         }
 
@@ -48,7 +55,8 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] DetailPicklistUpdateDto dto)
         {
-            var success = await _service.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var success = await _service.UpdateForCompanyAsync(id, dto, companyId); // 🏢 Use company-aware method
             if (!success)
                 return NotFound();
 
@@ -69,99 +77,194 @@ namespace PfeProject.API.Controllers
         [HttpGet("by-picklist/{picklistId}")]
         public async Task<ActionResult<IEnumerable<DetailPicklistReadDto>>> GetByPicklistId(int picklistId)
         {
-            var details = await _service.GetByPicklistIdAsync(picklistId);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var details = await _service.GetByPicklistIdAndCompanyAsync(picklistId, companyId); // 🏢 Use company-aware method
             return Ok(details);
         }
 
-        // ✅ NEW: POST /api/detailpicklists/check-availability
-        // Checks if the quantities in a list of DetailPicklists are available in SAP
-        // Expects a list of DetailPicklistReadDto or a specific DTO containing Id, Quantite, ArticleId/UsCode
+        // ✅ Enhanced: POST /api/detailpicklists/check-availability
+        // Checks inventory availability for picklist details with better error handling and SAP integration
         [HttpPost("check-availability")]
         public async Task<ActionResult<IEnumerable<AvailabilityResultDto>>> CheckAvailability([FromBody] IEnumerable<DetailPicklistReadDto> detailPicklistsToCheck)
         {
             if (detailPicklistsToCheck == null || !detailPicklistsToCheck.Any())
             {
-                return BadRequest("La liste des détails de picklist à vérifier est vide ou invalide.");
+                return BadRequest(new { message = "La liste des détails de picklist à vérifier est vide ou invalide." });
             }
 
-            // Fetch ALL relevant SAP data to minimize database calls
-            // This assumes SapReadDto has UsCode and Quantite properties
-            // You might fetch only the necessary fields or filter if the SAP table is huge
-            var allSapData = await _sapService.GetAllAsync(); // Or GetAllActiveAsync() if you only check active SAP items
-            var sapDictionary = allSapData
-                .Where(s => s.IsActive) // Assuming SapReadDto has an IsActive property
-                .GroupBy(s => s.UsCode) // Group by UsCode in case there are duplicates
-                .ToDictionary(g => g.Key, g => g.First()); // Take the first one if duplicates (or sum Quantite if needed)
+            var companyId = GetCurrentUserCompanyId();
 
-            var results = new List<AvailabilityResultDto>();
-
-            foreach (var detail in detailPicklistsToCheck)
+            try
             {
-                // --- Determine the CodeProduit/UsCode to check ---
-                // Option 1: If DetailPicklistReadDto directly contains UsCode or CodeProduit
-                // string codeProduitToCheck = detail.UsCode ?? detail.CodeProduit; 
+                // Fetch SAP data for the company
+                var allSapData = await _sapService.GetAllByCompanyAsync(companyId);
+                var sapDictionary = allSapData
+                    .Where(s => s.IsActive)
+                    .GroupBy(s => s.UsCode)
+                    .ToDictionary(g => g.Key, g => g.Sum(s => s.Quantite));
 
-                //Option 2: If DetailPicklistReadDto contains an Article object with CodeProduit
-                 string codeProduitToCheck = detail.Article?.CodeProduit;
+                var results = new List<AvailabilityResultDto>();
 
-                // Option 3: If DetailPicklistReadDto contains ArticleId and you need to fetch Article details
-                // This would require an IArticleService or similar, adding complexity.
-                // For simplicity, let's assume Option 2 or that UsCode is directly on DetailPicklistReadDto
-
-              
-
-                int requestedQuantity;
-                bool isAvailable = false;
-                int availableQuantity = 0;
-
-                // Validate quantity
-                if (int.TryParse(detail.Quantite, out requestedQuantity) && requestedQuantity > 0)
+                foreach (var detail in detailPicklistsToCheck)
                 {
-                    // Check SAP dictionary
-                    if (sapDictionary.TryGetValue(codeProduitToCheck, out var sapItem))
+                    string codeProduitToCheck = detail.Article?.CodeProduit;
+
+                    if (string.IsNullOrEmpty(codeProduitToCheck))
                     {
-                        availableQuantity = sapItem.Quantite; // Assuming SapReadDto has Quantite property
-                        isAvailable = availableQuantity >= requestedQuantity;
+                        results.Add(new AvailabilityResultDto
+                        {
+                            DetailPicklistId = detail.Id,
+                            IsAvailable = false,
+                            AvailableQuantity = 0,
+                            RequestedQuantity = 0,
+                            CodeProduit = codeProduitToCheck ?? "N/A",
+                            Message = "Code produit manquant"
+                        });
+                        continue;
+                    }
+
+                    int requestedQuantity = 0;
+                    bool isAvailable = false;
+                    int availableQuantity = 0;
+                    string message = "";
+
+                    // Validate and parse quantity
+                    if (int.TryParse(detail.Quantite, out requestedQuantity) && requestedQuantity > 0)
+                    {
+                        // Check SAP availability
+                        if (sapDictionary.ContainsKey(codeProduitToCheck))
+                        {
+                            availableQuantity = sapDictionary[codeProduitToCheck];
+                            isAvailable = availableQuantity >= requestedQuantity;
+                            message = isAvailable ?
+                                $"Disponible ({availableQuantity} unités)" :
+                                $"Stock insuffisant (disponible: {availableQuantity}, demandé: {requestedQuantity})";
+                        }
+                        else
+                        {
+                            message = "Article non trouvé dans SAP";
+                        }
                     }
                     else
                     {
-                        // CodeProduit not found in SAP
-                        isAvailable = false;
-                        availableQuantity = 0;
+                        message = "Quantité invalide";
                     }
-                }
-                else
-                {
-                    // Invalid quantity in detail picklist
-                    isAvailable = false;
-                    availableQuantity = 0;
+
+                    results.Add(new AvailabilityResultDto
+                    {
+                        DetailPicklistId = detail.Id,
+                        IsAvailable = isAvailable,
+                        AvailableQuantity = availableQuantity,
+                        RequestedQuantity = requestedQuantity,
+                        CodeProduit = codeProduitToCheck,
+                        Message = message
+                    });
                 }
 
-                results.Add(new AvailabilityResultDto
-                {
-                    DetailPicklistId = detail.Id, // Include ID for client-side matching
-                    IsAvailable = isAvailable,
-                    AvailableQuantity = availableQuantity,
-                    RequestedQuantity = requestedQuantity,
-                    CodeProduit = codeProduitToCheck
-                });
-                
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erreur lors de la vérification de disponibilité", error = ex.Message });
+            }
+        }
+
+        // ✅ NEW: GET /api/detailpicklists/by-picklist/{picklistId}/with-availability
+        // Gets picklist details with real-time availability status
+        [HttpGet("by-picklist/{picklistId}/with-availability")]
+        public async Task<ActionResult<IEnumerable<DetailPicklistWithAvailabilityDto>>> GetByPicklistWithAvailability(int picklistId)
+        {
+            var companyId = GetCurrentUserCompanyId();
+            var details = await _service.GetByPicklistIdAndCompanyAsync(picklistId, companyId);
+
+            if (!details.Any())
+            {
+                return Ok(new List<DetailPicklistWithAvailabilityDto>());
             }
 
-            return Ok(results);
+            try
+            {
+                // Check availability for all details
+                var availabilityResults = await CheckAvailability(details);
+                var availabilityDict = availabilityResults.Value?.ToDictionary(r => r.DetailPicklistId, r => r) ?? new Dictionary<int, AvailabilityResultDto>();
+
+                var result = details.Select(detail =>
+                {
+                    var availability = availabilityDict.GetValueOrDefault(detail.Id);
+                    return new DetailPicklistWithAvailabilityDto
+                    {
+                        Id = detail.Id,
+                        Emplacement = detail.Emplacement,
+                        Quantite = detail.Quantite,
+                        Article = detail.Article,
+                        Status = detail.Status,
+                        PicklistId = detail.PicklistId,
+                        IsActive = detail.IsActive,
+                        Availability = availability ?? new AvailabilityResultDto
+                        {
+                            DetailPicklistId = detail.Id,
+                            IsAvailable = false,
+                            AvailableQuantity = 0,
+                            RequestedQuantity = 0,
+                            CodeProduit = detail.Article?.CodeProduit ?? "N/A",
+                            Message = "Non vérifié"
+                        }
+                    };
+                }).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erreur lors de la vérification de disponibilité", error = ex.Message });
+            }
         }
-    
 
-    // --- DTO for the availability check result ---
-    // Define this in your Application.Models or a suitable DTO location
-    public class AvailabilityResultDto
-    {
-        public int DetailPicklistId { get; set; } // To correlate result with input
-        public bool IsAvailable { get; set; }
-        public int AvailableQuantity { get; set; }
-        public int RequestedQuantity { get; set; }
-        public string CodeProduit { get; set; } // For debugging/info
+        // --- DTO for the availability check result ---
+        public class AvailabilityResultDto
+        {
+            public int DetailPicklistId { get; set; }
+            public bool IsAvailable { get; set; }
+            public int AvailableQuantity { get; set; }
+            public int RequestedQuantity { get; set; }
+            public string CodeProduit { get; set; }
+            public string Message { get; set; }
+        }
+
+        // --- DTO for detail picklist with availability ---
+        public class DetailPicklistWithAvailabilityDto
+        {
+            public int Id { get; set; }
+            public string Emplacement { get; set; }
+            public string Quantite { get; set; }
+            public PfeProject.Application.Models.DetailPicklists.ArticleDto Article { get; set; }
+            public PfeProject.Application.Models.Statuses.StatusReadDto Status { get; set; }
+            public int PicklistId { get; set; }
+            public bool IsActive { get; set; }
+            public AvailabilityResultDto Availability { get; set; }
+        }
+
+        // ✅ DELETE /api/detailpicklists/{id}
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var success = await _service.DeleteForCompanyAsync(id, companyId); // 🏢 Use company-aware method
+            if (!success)
+                return NotFound();
+
+            return Ok(new { message = "Detail picklist deleted successfully." });
+        }
+
+        private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
+        }
+
     }
-
-}
 }

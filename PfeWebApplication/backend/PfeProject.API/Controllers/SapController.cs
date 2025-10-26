@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models.Saps;
+using System.Security.Claims;
 
 namespace PfeProject.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class SapController : ControllerBase
     {
         private readonly ISapService _sapService;
@@ -19,7 +22,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SapReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var result = await _sapService.GetAllAsync(isActive);
+            var companyId = GetCurrentUserCompanyId();
+            var result = await _sapService.GetAllByCompanyAsync(companyId, isActive);
             return Ok(result);
         }
 
@@ -27,7 +31,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<SapReadDto>> GetById(int id)
         {
-            var sap = await _sapService.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId();
+            var sap = await _sapService.GetByIdAndCompanyAsync(id, companyId);
             if (sap == null)
                 return NotFound();
 
@@ -38,7 +43,8 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] SapCreateDto dto)
         {
-            await _sapService.CreateAsync(dto);
+            var companyId = GetCurrentUserCompanyId();
+            await _sapService.CreateForCompanyAsync(dto, companyId);
             return Ok(new { message = "SAP entry created successfully." });
         }
 
@@ -46,7 +52,8 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] SapUpdateDto dto)
         {
-            var success = await _sapService.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId();
+            var success = await _sapService.UpdateForCompanyAsync(id, dto, companyId);
             if (!success)
                 return NotFound();
 
@@ -57,11 +64,34 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}/set-active")]
         public async Task<ActionResult> SetActiveStatus(int id, [FromQuery] bool value)
         {
-            var success = await _sapService.SetActiveStatusAsync(id, value);
+            var companyId = GetCurrentUserCompanyId();
+            var success = await _sapService.SetActiveStatusForCompanyAsync(id, value, companyId);
             if (!success)
                 return NotFound();
 
             return NoContent();
+        }
+
+        // DELETE: /api/sap/{id}
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var companyId = GetCurrentUserCompanyId();
+            var success = await _sapService.DeleteForCompanyAsync(id, companyId);
+            if (!success)
+                return NotFound();
+
+            return Ok(new { message = "SAP entry deleted successfully." });
+        }
+
+        private int GetCurrentUserCompanyId()
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
         }
 
         [HttpPost("add-stock")]

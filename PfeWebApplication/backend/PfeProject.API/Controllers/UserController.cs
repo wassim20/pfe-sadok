@@ -187,9 +187,18 @@ namespace PfeProject.API.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminAssignUserRoles(int id, [FromBody] AssignRolesRequest request)
         {
+            // Get current user's company ID
+            var companyIdClaim = User.FindFirst("CompanyId")?.Value;
+            if (string.IsNullOrEmpty(companyIdClaim) || !int.TryParse(companyIdClaim, out var companyId))
+                return Unauthorized(new { message = "Company information missing in token" });
+
             var user = await _userRepository.GetUserByIdAsync(id);
             if (user == null)
                 return NotFound(new { message = "Utilisateur introuvable ❌" });
+
+            // Check if user belongs to the same company
+            if (user.CompanyId != companyId)
+                return Forbid("Vous ne pouvez pas assigner des rôles à un utilisateur d'une autre entreprise");
 
             var currentRoles = await _userRoleRepository.GetRolesForUserAsync(id);
             foreach (var role in currentRoles)
@@ -204,7 +213,8 @@ namespace PfeProject.API.Controllers
                     AssignedById = request.AssignedById,
                     AssignmentDate = DateTime.UtcNow,
                     IsActive = true,
-                    Note = request.Note
+                    Note = request.Note,
+                    CompanyId = companyId // 🏢 Set Company relationship
                 };
 
                 await _userRoleRepository.AddAsync(userRole);

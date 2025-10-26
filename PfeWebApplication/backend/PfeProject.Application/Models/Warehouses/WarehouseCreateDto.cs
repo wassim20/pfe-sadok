@@ -1,5 +1,8 @@
-﻿public class WarehouseCreateDto
+﻿namespace PfeProject.Application.Models.Warehouses
 {
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public class WarehouseCreateDto
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+    }
 }

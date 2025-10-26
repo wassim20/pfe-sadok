@@ -2,57 +2,63 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { BaseCompanyService } from 'app/core/services/base-company.service';
+import { AuthService } from 'app/core/auth/auth.service';
 
 
 @Injectable({
   providedIn: 'root'
 })
-export class LocationService {
-  private apiUrl = 'http://localhost:5288/api'; // Base URL de votre API
+export class LocationService extends BaseCompanyService {
+  protected apiUrl = 'http://localhost:5288/api/Locations'; // Base URL de votre API
 
-  constructor(private http: HttpClient) { }
+  constructor(http: HttpClient, authService: AuthService) { 
+    super(http, authService);
+  }
 
+  // 🏢 Company-aware methods (inherited from BaseCompanyService)
+  // - getAllByCompany(isActive?: boolean): Observable<any[]>
+  // - getByIdAndCompany(id: number): Observable<any>
+  // - createForCompany(dto: any): Observable<any>
+  // - updateForCompany(id: number, dto: any): Observable<any>
+  // - setActiveStatusForCompany(id: number, value: boolean): Observable<any>
+
+  // Legacy methods for backward compatibility
   // GET: /api/Locations?isActive=true
   getLocations(isActive: boolean | null = true): Observable<any[]> {
-    let params = new HttpParams();
-    if (isActive !== null) {
-      params = params.append('isActive', isActive.toString());
-    }
-    return this.http.get<any[]>(`${this.apiUrl}/Locations`, { params });
+    return this.getAllByCompany(isActive); // 🏢 Use company-aware method
   }
 
   // GET: /api/Locations/{id}
   getLocationById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/Locations/${id}`);
+    return this.getByIdAndCompany(id); // 🏢 Use company-aware method
   }
 
   // POST: /api/Locations
   createLocation(location: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/Locations`, location);
+    return this.createForCompany(location); // 🏢 Use company-aware method
   }
 
   // PUT: /api/Locations/{id}
   updateLocation(id: number, location: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/Locations/${id}`, location);
+    return this.updateForCompany(id, location); // 🏢 Use company-aware method
   }
 
   // PUT: /api/Locations/{id}/set-active?value=true/false
   setActiveStatus(id: number, value: boolean): Observable<any> {
-    let params = new HttpParams();
-    params = params.append('value', value.toString());
-    // Empty body, params passed in options to match controller signature
-    return this.http.put(`${this.apiUrl}/Locations/${id}/set-active`, {}, { params });
+    return this.setActiveStatusForCompany(id, value); // 🏢 Use company-aware method
   }
   // location.service.ts
 
 
 
   getWarehouses(isActive: boolean | null = true) {
+    // Use the correct Warehouses API endpoint - FIXED
     let params = new HttpParams();
     if (isActive !== null) {
       params = params.append('isActive', isActive.toString());
     }
-  return this.http.get<any[]>(`${this.apiUrl}/Warehouses`, { params });
-}
+    return this.http.get<any[]>(`http://localhost:5288/api/Warehouses`, { params });
+  }
 
 }

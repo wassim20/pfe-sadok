@@ -45,5 +45,22 @@ namespace PfeProject.Infrastructure.Repositories
         {
             return await _context.Warehouses.AnyAsync(w => w.Id == id);
         }
+
+        // Company-aware methods
+        public async Task<IEnumerable<Warehouse>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
+        {
+            var query = _context.Warehouses.Where(w => w.CompanyId == companyId);
+
+            if (isActive.HasValue)
+                query = query.Where(w => w.IsActive == isActive.Value);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<Warehouse?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            return await _context.Warehouses
+                .FirstOrDefaultAsync(w => w.Id == id && w.CompanyId == companyId);
+        }
     }
 }

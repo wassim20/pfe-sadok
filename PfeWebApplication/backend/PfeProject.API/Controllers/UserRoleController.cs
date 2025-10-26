@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Models.users;
-using PfeProject.Application.Services;
+using PfeProject.Application.Interfaces;
 using PfeProject.Domain.Entities;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -13,9 +13,9 @@ namespace PfeProject.API.Controllers
     [Authorize(Roles = "Admin")]
     public class UserRoleController : ControllerBase
     {
-        private readonly UserRoleService _userRoleService;
+        private readonly IUserRoleService _userRoleService;
 
-        public UserRoleController(UserRoleService userRoleService)
+        public UserRoleController(IUserRoleService userRoleService)
         {
             _userRoleService = userRoleService;
         }
@@ -23,14 +23,16 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var userRoles = await _userRoleService.GetAllAsync();
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var userRoles = await _userRoleService.GetAllByCompanyAsync(companyId); // 🏢 Use company-aware method
             return Ok(userRoles);
         }
 
         [HttpGet("{userId}/{roleId}")]
         public async Task<IActionResult> Get(int userId, int roleId)
         {
-            var userRole = await _userRoleService.GetByIdAsync(userId, roleId);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var userRole = await _userRoleService.GetByIdAndCompanyAsync(userId, roleId, companyId); // 🏢 Use company-aware method
             if (userRole == null)
                 return NotFound();
 
@@ -45,6 +47,7 @@ namespace PfeProject.API.Controllers
                 return BadRequest(ModelState); // Return validation errors
             }
 
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
             
             // Map DTO to Domain Entity (or let the service handle this)
             var userRoleToAssign = new UserRole
@@ -59,7 +62,7 @@ namespace PfeProject.API.Controllers
 
             try
             {
-                await _userRoleService.AddAsync(userRoleToAssign);
+                await _userRoleService.AddForCompanyAsync(userRoleToAssign, companyId); // 🏢 Use company-aware method
                 return Ok(new { message = "Rôle assigné à l'utilisateur ✅" });
             }
             catch (Exception ex) 
@@ -73,8 +76,6 @@ namespace PfeProject.API.Controllers
             }
         }
 
-         
-
         [HttpPut]
         public async Task<IActionResult> UpdateUserRole([FromBody] UserRole userRole)
         {
@@ -87,6 +88,16 @@ namespace PfeProject.API.Controllers
         {
             await _userRoleService.DeleteAsync(userId, roleId);
             return Ok(new { message = "Rôle retiré de l'utilisateur ✅" });
+        }
+
+        private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
         }
     }
 }

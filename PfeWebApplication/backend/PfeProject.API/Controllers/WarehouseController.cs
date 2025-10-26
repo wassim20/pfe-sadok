@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
-
+using PfeProject.Application.Models.Warehouses;
+using System.Security.Claims;
 
 namespace PfeProject.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🏢 Added authorization
     public class WarehousesController : ControllerBase
     {
         private readonly IWarehouseService _service;
@@ -19,7 +22,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WarehouseReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var warehouses = await _service.GetAllAsync(isActive);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var warehouses = await _service.GetAllByCompanyAsync(companyId, isActive); // 🏢 Use company-aware method
             return Ok(warehouses);
         }
 
@@ -27,7 +31,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<WarehouseReadDto>> GetById(int id)
         {
-            var warehouse = await _service.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var warehouse = await _service.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
             if (warehouse == null)
                 return NotFound();
 
@@ -38,7 +43,8 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] WarehouseCreateDto dto)
         {
-            await _service.CreateAsync(dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            await _service.CreateForCompanyAsync(dto, companyId); // 🏢 Use company-aware method
             return Ok(new { message = "Warehouse created successfully." });
         }
 
@@ -46,11 +52,33 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] WarehouseUpdateDto dto)
         {
-            var success = await _service.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var success = await _service.UpdateForCompanyAsync(id, dto, companyId); // 🏢 Use company-aware method
             if (!success)
                 return NotFound();
 
             return NoContent();
+        }
+
+        // PUT: api/warehouses/{id}/set-active?value=true
+        [HttpPut("{id}/set-active")]
+        public async Task<ActionResult> SetActiveStatus(int id, [FromQuery] bool value)
+        {
+            var success = await _service.SetActiveStatusAsync(id, value);
+            if (!success)
+                return NotFound();
+
+            return NoContent();
+        }
+
+        private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
         }
     }
 }

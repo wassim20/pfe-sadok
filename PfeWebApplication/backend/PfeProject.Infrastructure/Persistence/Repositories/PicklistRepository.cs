@@ -63,5 +63,29 @@ namespace PfeProject.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
+        // Company-aware methods
+        public async Task<IEnumerable<Picklist>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
+        {
+            var query = _context.Picklists
+                .Include(p => p.Status)
+                .Include(p => p.Warehouse)
+                .Include(p => p.Line)
+                .Where(p => p.CompanyId == companyId);
+
+            if (isActive.HasValue)
+                query = query.Where(p => p.IsActive == isActive.Value);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<Picklist?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            return await _context.Picklists
+                .Include(p => p.Status)
+                .Include(p => p.Warehouse)
+                .Include(p => p.Line)
+                .FirstOrDefaultAsync(p => p.Id == id && p.CompanyId == companyId);
+        }
     }
 }

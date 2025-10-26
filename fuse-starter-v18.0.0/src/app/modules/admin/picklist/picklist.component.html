@@ -1,32 +1,41 @@
-<div class="p-4 space-y-6 block w-full">
+<div class="absolute inset-0 flex flex-col min-w-0 overflow-hidden">
 
-  <!-- Title -->
-  <h2 class="text-2xl font-bold">Gestion des Picklistes</h2>
-
-  <!-- Filters + Add Button -->
-  <div class="grid gap-4 sm:flex sm:flex-wrap sm:items-end">
-    <mat-form-field appearance="fill" class="w-full sm:w-60">
-      <mat-label>Filtrer par Magasin</mat-label>
-      <mat-select [(ngModel)]="selectedWarehouseId"  >
-        <mat-option [value]="null">Tous</mat-option>
-        <mat-option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" class="w-full sm:w-60">
-      <mat-label>Filtrer par Ligne</mat-label>
-      <mat-select [(ngModel)]="selectedLineId">
-        <mat-option [value]="null">Toutes</mat-option>
-        <mat-option *ngFor="let l of lines" [value]="l.id">{{ l.description }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <div class="w-full sm:w-auto">
-      <button mat-flat-button color="primary" class="w-full sm:w-auto" (click)="openCreateDialog()">
-        + Ajouter Pickliste
-      </button>
+  <!-- Modern Header -->
+  <div class="sticky top-0 z-10 border-b border-gray-200 bg-white">
+    <div class="flex flex-col gap-4 px-6 py-5">
+      <!-- Title Row -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="text-3xl font-bold text-gray-900">Gestion des Picklistes</div>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm">{{ displayedPicklists?.length || 0 }} items</span>
+        </div>
+        <button mat-flat-button color="primary" (click)="openCreateDialog()" class="shadow-md hover:shadow-lg transition-shadow">
+          <mat-icon>add</mat-icon>
+          <span class="ml-2">Nouvelle Pickliste</span>
+        </button>
+      </div>
+      <!-- Toolbar Row -->
+      <div class="flex flex-col sm:flex-row gap-3">
+        <mat-form-field appearance="outline" class="flex-1 sm:max-w-48">
+          <mat-label>Magasin</mat-label>
+          <mat-select [(ngModel)]="selectedWarehouseId">
+            <mat-option [value]="null">Tous</mat-option>
+            <mat-option *ngFor="let w of warehouses" [value]="w.id">{{ w.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex-1 sm:max-w-48">
+          <mat-label>Ligne</mat-label>
+          <mat-select [(ngModel)]="selectedLineId">
+            <mat-option [value]="null">Toutes</mat-option>
+            <mat-option *ngFor="let l of lines" [value]="l.id">{{ l.description }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </div>
   </div>
+
+  <!-- Main Content -->
+  <div class="flex-auto overflow-y-auto p-6">
 
   <!-- Table Wrapper -->
   <div class="w-full overflow-x-auto rounded-lg shadow-sm border border-gray-200">
@@ -93,5 +102,6 @@
         class="hover:bg-gray-50 transition duration-200 ease-in-out"
       ></mat-row>
     </mat-table>
+  </div>
   </div>
 </div>

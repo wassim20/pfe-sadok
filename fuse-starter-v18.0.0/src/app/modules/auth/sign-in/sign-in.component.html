@@ -2,12 +2,15 @@
     <div class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card">
         <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
             <!-- Logo -->
-            <div class="w-12">
-                <img src="assets/images/logo/logo.svg">
+            <div class="w-24">
+                <img src="assets/images/logo/logo.png" alt="Stock Management System">
             </div>
 
             <!-- Title -->
-            <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">Sign in</div>
+            <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">Stock Management System</div>
+            <div class="mt-2 text-xl font-semibold text-primary-600">
+                Inventory & Warehouse Control
+            </div>
             <div class="flex items-baseline mt-0.5 font-medium">
                 <div>Don't have an account?</div>
                 <a
@@ -22,7 +25,7 @@
                 [appearance]="'outline'"
                 [showIcon]="false"
                 [type]="'info'">
-                You are browsing <strong>Fuse Demo</strong>. Click on the "Sign in" button to access the Demo and Documentation.
+                Welcome to our <strong>Stock Management System</strong>. Manage your inventory, track products, and control your warehouse operations efficiently.
             </fuse-alert>
 
             <!-- Alert -->
@@ -107,48 +110,13 @@
                     [disabled]="signInForm.disabled"
                     (click)="signIn()">
                     <span *ngIf="!signInForm.disabled">
-                        Sign in
+                        Sign in to Dashboard
                     </span>
                     <mat-progress-spinner
                         *ngIf="signInForm.disabled"
                         [diameter]="24"
                         [mode]="'indeterminate'"></mat-progress-spinner>
                 </button>
-
-                <!-- Separator -->
-                <div class="flex items-center mt-8">
-                    <div class="flex-auto mt-px border-t"></div>
-                    <div class="mx-2 text-secondary">Or continue with</div>
-                    <div class="flex-auto mt-px border-t"></div>
-                </div>
-
-                <!-- Single sign-on buttons -->
-                <div class="flex items-center mt-8 space-x-4">
-                    <button
-                        class="flex-auto"
-                        type="button"
-                        mat-stroked-button>
-                        <mat-icon
-                            class="icon-size-5"
-                            [svgIcon]="'feather:facebook'"></mat-icon>
-                    </button>
-                    <button
-                        class="flex-auto"
-                        type="button"
-                        mat-stroked-button>
-                        <mat-icon
-                            class="icon-size-5"
-                            [svgIcon]="'feather:twitter'"></mat-icon>
-                    </button>
-                    <button
-                        class="flex-auto"
-                        type="button"
-                        mat-stroked-button>
-                        <mat-icon
-                            class="icon-size-5"
-                            [svgIcon]="'feather:github'"></mat-icon>
-                    </button>
-                </div>
             </form>
         </div>
     </div>
@@ -176,29 +144,33 @@
         <!-- Content -->
         <div class="z-10 relative w-full max-w-2xl">
             <div class="text-7xl font-bold leading-none text-gray-100">
-                <div>Welcome to</div>
-                <div>our community</div>
+                <div>Manage Your</div>
+                <div>Stock Efficiently</div>
             </div>
             <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
-                Fuse helps developers to build organized and well coded dashboards full of beautiful and rich modules.
-                Join us and start building your application today.
+                Our comprehensive stock management system helps you track inventory, manage warehouses, 
+                control products, and optimize your supply chain operations with real-time visibility 
+                and intelligent automation.
             </div>
             <div class="flex items-center mt-8">
-                <div class="flex flex-0 items-center -space-x-1.5">
-                    <img
-                        class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-                        src="assets/images/avatars/female-18.jpg">
-                    <img
-                        class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-                        src="assets/images/avatars/female-11.jpg">
-                    <img
-                        class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-                        src="assets/images/avatars/male-09.jpg">
-                    <img
-                        class="flex-0 w-10 h-10 rounded-full ring-4 ring-offset-1 ring-gray-800 ring-offset-gray-800 object-cover"
-                        src="assets/images/avatars/male-16.jpg">
+                <div class="flex flex-0 items-center space-x-4">
+                    <div class="flex flex-col items-center">
+                        <mat-icon class="text-4xl text-gray-400">inventory_2</mat-icon>
+                        <div class="text-sm text-gray-400 mt-2">Real-time Tracking</div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <mat-icon class="text-4xl text-gray-400">warehouse</mat-icon>
+                        <div class="text-sm text-gray-400 mt-2">Multi-Warehouse</div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <mat-icon class="text-4xl text-gray-400">analytics</mat-icon>
+                        <div class="text-sm text-gray-400 mt-2">Smart Analytics</div>
+                    </div>
                 </div>
-                <div class="ml-4 font-medium tracking-tight text-gray-400">More than 17k people joined us, it's your turn</div>
+            </div>
+            <div class="mt-12 text-base text-gray-500">
+                Features: Inventory Management • Picklist Control • SAP Integration • 
+                Movement Tracking • Company Multi-tenancy
             </div>
         </div>
     </div>

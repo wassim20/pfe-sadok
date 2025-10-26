@@ -11,6 +11,10 @@ public class Location
     public int WarehouseId { get; set; }
     public Warehouse Warehouse { get; set; }
 
+    // 🏢 Company relationship
+    public int CompanyId { get; set; }
+    public virtual Company Company { get; set; }
+
     // 🔁 Relations
     public ICollection<DetailInventory> DetailInventories { get; set; } = new HashSet<DetailInventory>();
 }

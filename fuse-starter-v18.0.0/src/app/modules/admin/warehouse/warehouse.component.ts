@@ -54,22 +54,14 @@ export class WarehouseComponent implements OnInit, OnDestroy {
 
   loadWarehouses(): void {
     this.loading = true;
-    this.WarehouseService.getWarehouses()
+    // 🏢 Use company-aware method with proper filtering
+    const isActiveFilter = this.filterMode === 'all' ? null : (this.filterMode === 'active');
+    this.WarehouseService.getAllByCompany(isActiveFilter)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           console.log(data);
-          
-          switch (this.filterMode) {
-            case 'active':
-              this.warehouses = data.filter(w => w.isActive);
-              break;
-            case 'inactive':
-              this.warehouses = data.filter(w => !w.isActive);
-              break;
-            default:
-              this.warehouses = data;
-          }
+          this.warehouses = data;
           this.loading = false;
         },
         error: (err) => {
@@ -112,16 +104,29 @@ export class WarehouseComponent implements OnInit, OnDestroy {
 
   toggleActivation(warehouse: any): void {
     const newStatus = !warehouse.isActive;
-    this.WarehouseService.setActiveStatus(warehouse.id, newStatus)
+    const oldStatus = warehouse.isActive;
+    
+    // Optimistic update - update UI immediately
+    warehouse.isActive = newStatus;
+    
+    // 🏢 Use company-aware method
+    this.WarehouseService.setActiveStatusForCompany(warehouse.id, newStatus)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          warehouse.isActive = newStatus;
-          this._snackBar.open(`Magasin ${newStatus ? 'activé' : 'désactivé'} avec succès.`, '', { duration: 3000 });
+          this._snackBar.open(`Magasin ${newStatus ? 'activé' : 'désactivé'} avec succès.`, '', { 
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
         },
         error: (err) => {
           console.error('Error toggling activation:', err);
-          this._snackBar.open('Erreur lors de la mise à jour de l\'état.', 'Erreur', { duration: 5000 });
+          // Revert optimistic update on error
+          warehouse.isActive = oldStatus;
+          this._snackBar.open('Erreur lors de la mise à jour de l\'état.', 'Erreur', { 
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
   }
@@ -172,7 +177,8 @@ export class CreateWarehouseDialogComponent {
   ) {}
 
   create(): void {
-    this.warehouseService.createWarehouse({ name: this.name, description: this.description }).subscribe({
+    // 🏢 Use company-aware method
+    this.warehouseService.createForCompany({ name: this.name, description: this.description }).subscribe({
       next: () => {
         this.dialogRef.close('created');
       },
@@ -229,7 +235,8 @@ export class EditWarehouseDialogComponent {
   }
 
   update(): void {
-    this.warehouseService.updateWarehouse(this.data.id, { name: this.name, description: this.description }).subscribe({
+    // 🏢 Use company-aware method
+    this.warehouseService.updateForCompany(this.data.id, { name: this.name, description: this.description }).subscribe({
       next: () => {
         this.dialogRef.close('updated');
       },

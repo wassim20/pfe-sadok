@@ -39,6 +39,44 @@ export class AuthService
         return localStorage.getItem('accessToken') ?? '';
     }
 
+    /**
+     * Get CompanyId from JWT token
+     */
+    getCompanyId(): number | null {
+        const token = this.accessToken;
+        if (!token) {
+            console.log('[AuthService] No access token found');
+            return null;
+        }
+        
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            console.log('[AuthService] JWT payload:', payload);
+            const companyId = payload.CompanyId || null;
+            console.log('[AuthService] Extracted CompanyId:', companyId);
+            return companyId;
+        } catch (error) {
+            console.error('[AuthService] Error parsing JWT token:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Get UserId from JWT token
+     */
+    getUserId(): number | null {
+        const token = this.accessToken;
+        if (!token) return null;
+        
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.UserId || payload.sub || null;
+        } catch (error) {
+            console.error('Error parsing JWT token:', error);
+            return null;
+        }
+    }
+
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
@@ -101,6 +139,8 @@ export class AuthService
                 name: `${userProfileData.firstName || ''} ${userProfileData.lastName || ''}`.trim(),
                 // email correspond directement
                 email: userProfileData.email || '',
+                // 🏢 Add CompanyId from JWT token
+                companyId: this.getCompanyId(),
                 // avatar: '', // Backend ne fournit pas d'avatar? Laisser vide ou undefined
                 // status: userProfileData.state !== undefined ? userProfileData.state.toString() : 'true', // Mapper 'state' boolean à 'status' string si voulu
                 // Vous pouvez ajouter d'autres mappings si nécessaire en fonction de User.types

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models.Picklists;
 using System.Security.Claims;
@@ -8,6 +9,7 @@ namespace PfeProject.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🏢 Added authorization
     public class PicklistsController : ControllerBase
     {
         private readonly IPicklistService _service;
@@ -23,7 +25,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PicklistReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var list = await _service.GetAllAsync(isActive);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var list = await _service.GetAllByCompanyAsync(companyId, isActive); // 🏢 Use company-aware method
             return Ok(list);
         }
 
@@ -31,7 +34,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PicklistReadDto>> GetById(int id)
         {
-            var picklist = await _service.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var picklist = await _service.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
             if (picklist == null) return NotFound();
             return Ok(picklist);
         }
@@ -40,16 +44,14 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PicklistCreateDto dto)
         {
-            var companyIdClaim = User.FindFirst("CompanyId")?.Value;
-            int? companyId = null;
-            if (int.TryParse(companyIdClaim, out var cid)) companyId = cid;
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
 
             // find Draft status for company if available
             int? statusId = dto.StatusId;
-            if (companyId.HasValue && (statusId == null || statusId == 0))
+            if (statusId == null || statusId == 0)
             {
                 var status = (await _statusRepository.GetAllAsync())
-                    .FirstOrDefault(s => s.CompanyId == companyId.Value && s.Description == "Draft");
+                    .FirstOrDefault(s => s.CompanyId == companyId && s.Description == "Draft");
                 if (status != null) statusId = status.Id;
             }
 
@@ -63,7 +65,7 @@ namespace PfeProject.API.Controllers
                 StatusId = statusId ?? dto.StatusId
             };
 
-            var result = await _service.CreateAsync(adjusted);
+            var result = await _service.CreateForCompanyAsync(adjusted, companyId); // 🏢 Use company-aware method
             return Ok(result);
         }
 
@@ -71,7 +73,8 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] PicklistUpdateDto dto)
         {
-            var success = await _service.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var success = await _service.UpdateForCompanyAsync(id, dto, companyId); // 🏢 Use company-aware method
             if (!success) return NotFound();
             return NoContent();
         }
@@ -88,8 +91,7 @@ namespace PfeProject.API.Controllers
         [HttpPost("{id}/ready")]
         public async Task<IActionResult> MarkReady(int id)
         {
-            var companyIdClaim = User.FindFirst("CompanyId")?.Value;
-            if (!int.TryParse(companyIdClaim, out var companyId)) return Unauthorized();
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
             var ready = (await _statusRepository.GetAllAsync())
                 .FirstOrDefault(s => s.CompanyId == companyId && s.Description == "Ready");
             if (ready == null) return BadRequest(new { message = "Ready status not configured" });
@@ -101,8 +103,7 @@ namespace PfeProject.API.Controllers
         [HttpPost("{id}/ship")]
         public async Task<IActionResult> StartShipping(int id)
         {
-            var companyIdClaim = User.FindFirst("CompanyId")?.Value;
-            if (!int.TryParse(companyIdClaim, out var companyId)) return Unauthorized();
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
             var shipping = (await _statusRepository.GetAllAsync())
                 .FirstOrDefault(s => s.CompanyId == companyId && s.Description == "Shipping");
             if (shipping == null) return BadRequest(new { message = "Shipping status not configured" });
@@ -114,14 +115,23 @@ namespace PfeProject.API.Controllers
         [HttpPost("{id}/complete")]
         public async Task<IActionResult> Complete(int id)
         {
-            var companyIdClaim = User.FindFirst("CompanyId")?.Value;
-            if (!int.TryParse(companyIdClaim, out var companyId)) return Unauthorized();
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
             var completed = (await _statusRepository.GetAllAsync())
                 .FirstOrDefault(s => s.CompanyId == companyId && s.Description == "Completed");
             if (completed == null) return BadRequest(new { message = "Completed status not configured" });
             var ok = await _service.SetStatusAsync(id, completed.Id);
             if (!ok) return NotFound();
             return Ok(new { message = "Picklist completed" });
+        }
+
+        private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
         }
     }
 }

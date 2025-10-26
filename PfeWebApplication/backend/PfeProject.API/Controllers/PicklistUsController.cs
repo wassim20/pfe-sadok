@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
+using PfeProject.Application.Models.PicklistUSs;
+using System.Security.Claims;
 
 namespace PfeProject.API.Controllers;
 
@@ -20,7 +22,8 @@ public class PicklistUsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PicklistUsReadDto>>> GetFiltered([FromQuery] PicklistUsFilterDto filter)
     {
-        var result = await _service.GetFilteredAsync(filter);
+        var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+        var result = await _service.GetFilteredByCompanyAsync(filter, companyId); // 🏢 Use company-aware method
         return Ok(result);
     }
 
@@ -28,7 +31,8 @@ public class PicklistUsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<PicklistUsReadDto>> GetById(int id)
     {
-        var result = await _service.GetByIdAsync(id);
+        var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+        var result = await _service.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -36,7 +40,8 @@ public class PicklistUsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<PicklistUsReadDto>> Create(PicklistUsCreateDto dto)
     {
-        var created = await _service.CreateAsync(dto);
+        var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+        var created = await _service.CreateForCompanyAsync(dto, companyId); // 🏢 Use company-aware method
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -44,7 +49,8 @@ public class PicklistUsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, PicklistUsUpdateDto dto)
     {
-        var updated = await _service.UpdateAsync(id, dto);
+        var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+        var updated = await _service.UpdateForCompanyAsync(id, dto, companyId); // 🏢 Use company-aware method
         return updated ? NoContent() : NotFound();
     }
 
@@ -57,5 +63,15 @@ public class PicklistUsController : ControllerBase
             : await _service.DeactivateAsync(id);
 
         return result ? NoContent() : NotFound();
+    }
+
+    private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+    {
+        var companyIdClaim = User.FindFirst("CompanyId");
+        if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+        {
+            return companyId;
+        }
+        throw new UnauthorizedAccessException("User company ID not found in token");
     }
 }

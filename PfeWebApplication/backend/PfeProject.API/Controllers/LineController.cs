@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models.Lines;
+using PfeProject.Application.Models.Picklists;
 using PfeProject.Application.Services;
-using YourProject.Application.Models.Picklists;
+using System.Security.Claims;
 
 namespace PfeProject.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🏢 Added authorization
     public class LinesController : ControllerBase
     {
         private readonly ILineService _lineService;
@@ -23,7 +26,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LineReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var list = await _lineService.GetAllAsync(isActive);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var list = await _lineService.GetAllByCompanyAsync(companyId, isActive); // 🏢 Use company-aware method
             return Ok(list);
         }
 
@@ -31,7 +35,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<LineReadDto>> GetById(int id)
         {
-            var line = await _lineService.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var line = await _lineService.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
             if (line == null) return NotFound();
             return Ok(line);
         }
@@ -40,7 +45,8 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<ActionResult<LineReadDto>> Create([FromBody] LineCreateDto dto)
         {
-            var created = await _lineService.CreateAsync(dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var created = await _lineService.CreateForCompanyAsync(dto, companyId); // 🏢 Use company-aware method
             return Ok(created);
         }
 
@@ -48,7 +54,8 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] LineUpdateDto dto)
         {
-            var updated = await _lineService.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var updated = await _lineService.UpdateForCompanyAsync(id, dto, companyId); // 🏢 Use company-aware method
             if (!updated) return NotFound();
             return NoContent();
         }
@@ -63,10 +70,11 @@ namespace PfeProject.API.Controllers
         }
 
         // POST: /api/lines/{id}/picklists
-        // POST: /api/lines/{id}/picklists
         [HttpPost("{id}/picklists")]
         public async Task<IActionResult> AssignPicklist(int id, [FromBody] AssignPicklistDto dto)
         {
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+
             // Vérifier les arguments d'entrée
             if (dto == null || dto.PicklistId <= 0)
             {
@@ -74,31 +82,18 @@ namespace PfeProject.API.Controllers
             }
 
             // Vérifier que la ligne existe
-            var line = await _lineService.GetByIdAsync(id);
+            var line = await _lineService.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
             if (line == null)
             {
                 return NotFound(new { Message = $"Line with ID {id} not found." });
             }
 
             // Vérifier que la picklist existe et récupérer ses données actuelles
-            var picklist = await _picklistService.GetByIdAsync(dto.PicklistId);
+            var picklist = await _picklistService.GetByIdAndCompanyAsync(dto.PicklistId, companyId); // 🏢 Use company-aware method
             if (picklist == null)
             {
                 return NotFound(new { Message = $"Picklist with ID {dto.PicklistId} not found." });
             }
-
-            // --- MODIFICATION : Supprimer ou commenter la vérification de réaffectation ---
-            /*
-            // Vérifier si la picklist est déjà assignée à une autre ligne
-            // Assumer que LineId == 0 signifie non assignée. Ajustez si la logique est différente.
-            if (picklist.LineId != 0 && picklist.LineId != id)
-            {
-                // Log optionnel pour débogage
-                Console.WriteLine($"[AssignPicklist] Picklist {dto.PicklistId} already assigned to Line {picklist.LineId}, requested Line {id}");
-                return Conflict(new { Message = $"Picklist '{picklist.Name ?? "Unknown"}' is already assigned to another line (ID: {picklist.LineId})." });
-            }
-            */
-            // --- FIN DE LA MODIFICATION ---
 
             // Créer le DTO de mise à jour en conservant les valeurs existantes + la nouvelle LineId
             // S'assurer que toutes les propriétés obligatoires sont présentes
@@ -113,7 +108,7 @@ namespace PfeProject.API.Controllers
             };
 
             // Mettre à jour la picklist avec la nouvelle LineId (et autres données conservées)
-            var success = await _picklistService.UpdateAsync(dto.PicklistId, picklistUpdateDto);
+            var success = await _picklistService.UpdateForCompanyAsync(dto.PicklistId, picklistUpdateDto, companyId); // 🏢 Use company-aware method
             if (!success)
             {
                 Console.WriteLine($"[AssignPicklist] Failed to update Picklist {dto.PicklistId} via service.");
@@ -130,9 +125,14 @@ namespace PfeProject.API.Controllers
             public int PicklistId { get; set; }
         }
 
-
-
-
-
+        private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
+        }
     }
 }

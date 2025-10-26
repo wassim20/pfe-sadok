@@ -1,32 +1,42 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { BaseCompanyService } from 'app/core/services/base-company.service';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class WarehouseService {
+export class WarehouseService extends BaseCompanyService {
 
-    private baseUrl = `http://localhost:5288/api/Warehouses`; // Use environment variable for API URL
+  protected apiUrl = 'http://localhost:5288/api/Warehouses';
 
+  constructor(http: HttpClient, authService: AuthService) {
+    super(http, authService);
+  }
 
-  constructor(private http: HttpClient) {}
+  // 🏢 Company-aware methods (inherited from BaseCompanyService)
+  // - getAllByCompany(isActive?: boolean): Observable<any[]>
+  // - getByIdAndCompany(id: number): Observable<any>
+  // - createForCompany(dto: any): Observable<any>
+  // - updateForCompany(id: number, dto: any): Observable<any>
+  // - setActiveStatusForCompany(id: number, value: boolean): Observable<any>
 
+  // Legacy methods for backward compatibility
   getWarehouses(): Observable<any[]> {
-    return this.http.get<any[]>(this.baseUrl);
+    return this.getAllByCompany(); // 🏢 Use company-aware method
   }
 
   createWarehouse(dto: { name: string; description: string }): Observable<any> {
-    return this.http.post(this.baseUrl, dto);
+    return this.createForCompany(dto); // 🏢 Use company-aware method
   }
 
   updateWarehouse(id: number, dto: { name: string; description: string }): Observable<any> {
-    return this.http.put(`${this.baseUrl}/${id}`, dto);
+    return this.updateForCompany(id, dto); // 🏢 Use company-aware method
   }
 
   setActiveStatus(id: number, value: boolean): Observable<any> {
-    const params = { params: { value: value.toString() } } as const;
-    return this.http.put(`${this.baseUrl}/${id}/set-active`, {}, params);
+    return this.setActiveStatusForCompany(id, value); // 🏢 Use company-aware method
   }
 }
 

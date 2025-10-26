@@ -5,4 +5,5 @@ export interface User
     email: string;
     avatar?: string;
     status?: string;
+    companyId?: number; // 🏢 Add CompanyId to user interface
 }

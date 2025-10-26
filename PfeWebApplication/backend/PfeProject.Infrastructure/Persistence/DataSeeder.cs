@@ -17,56 +17,8 @@ namespace PfeProject.Infrastructure.Persistence
 
         public async Task SeedAsync()
         {
-            // ✅ Ensure a default company exists
-            Company defaultCompany;
-            if (!await _context.Companies.AnyAsync())
-            {
-                defaultCompany = new Company
-                {
-                    Name = "Default Company",
-                    Description = "Default company for system initialization",
-                    Code = "DEFAULT",
-                    CreationDate = DateTime.UtcNow,
-                    UpdateDate = DateTime.UtcNow,
-                    IsActive = true
-                };
-                _context.Companies.Add(defaultCompany);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                defaultCompany = await _context.Companies.FirstAsync();
-            }
-
-            // ✅ Seed per-company default statuses if missing
-            async Task EnsureCompanyStatusesAsync(int companyId)
-            {
-                // Examples: Draft, Ready, Shipping, Completed, Cancelled, Returned, Servie, Non Servie
-                var wanted = new[]
-                {
-                    "Draft","Ready","Shipping","Completed","Cancelled","Returned","Servie","Non Servie"
-                };
-                var existing = await _context.Statuses
-                    .AsNoTracking()
-                    .Where(s => s.CompanyId == companyId)
-                    .Select(s => s.Description)
-                    .ToListAsync();
-
-                foreach (var name in wanted)
-                {
-                    if (!existing.Contains(name))
-                    {
-                        _context.Statuses.Add(new Status
-                        {
-                            Description = name,
-                            CompanyId = companyId
-                        });
-                    }
-                }
-                await _context.SaveChangesAsync();
-            }
-
-            await EnsureCompanyStatusesAsync(defaultCompany.Id);
+            // ✅ Companies will be created automatically when users register
+            // No need to create a default company here
 
             // ✅ Create roles if not exist
             if (!await _context.Roles.AnyAsync())
@@ -78,10 +30,23 @@ namespace PfeProject.Infrastructure.Persistence
                 await _context.SaveChangesAsync();
             }
 
-            // ✅ Create default admin user
+            // ✅ Create default admin user only if no users exist
             var adminEmail = "sadokkerkeni@gmail.com";
             if (!await _context.Users.AnyAsync(u => u.Email == adminEmail))
             {
+                // Create a company for the admin user
+                var adminCompany = new Company
+                {
+                    Name = "Admin Company",
+                    Description = "Default company for system admin",
+                    Code = "ADMIN_COMPANY",
+                    CreationDate = DateTime.UtcNow,
+                    UpdateDate = DateTime.UtcNow,
+                    IsActive = true
+                };
+                _context.Companies.Add(adminCompany);
+                await _context.SaveChangesAsync();
+
                 var admin = new User
                 {
                     FirstName = "Admin",
@@ -92,7 +57,7 @@ namespace PfeProject.Infrastructure.Persistence
                     CreationDate = DateTime.UtcNow,
                     UpdateDate = DateTime.UtcNow,
                     State = true,
-                    CompanyId = defaultCompany.Id
+                    CompanyId = adminCompany.Id
                 };
 
                 _context.Users.Add(admin);
@@ -111,7 +76,38 @@ namespace PfeProject.Infrastructure.Persistence
                 });
 
                 await _context.SaveChangesAsync();
+
+                // Create default statuses for the admin company
+                await EnsureCompanyStatusesAsync(adminCompany.Id);
             }
+        }
+
+        // ✅ Seed per-company default statuses if missing
+        private async Task EnsureCompanyStatusesAsync(int companyId)
+        {
+            // Examples: Draft, Ready, Shipping, Completed, Cancelled, Returned, Servie, Non Servie
+            var wanted = new[]
+            {
+                "Draft","Ready","Shipping","Completed","Cancelled","Returned","Servie","Non Servie"
+            };
+            var existing = await _context.Statuses
+                .AsNoTracking()
+                .Where(s => s.CompanyId == companyId)
+                .Select(s => s.Description)
+                .ToListAsync();
+
+            foreach (var name in wanted)
+            {
+                if (!existing.Contains(name))
+                {
+                    _context.Statuses.Add(new Status
+                    {
+                        Description = name,
+                        CompanyId = companyId
+                    });
+                }
+            }
+            await _context.SaveChangesAsync();
         }
     }
 }

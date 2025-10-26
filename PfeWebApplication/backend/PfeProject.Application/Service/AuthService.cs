@@ -1,5 +1,6 @@
 ﻿using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models;
+using PfeProject.Application.Models.Invitations;
 using PfeProject.Application.Services;
 using PfeProject.Domain.Entities;
 using PfeProject.Domain.Interfaces;
@@ -14,17 +15,20 @@ namespace PfeProject.Application.Service
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IUserRoleRepository _userRoleRepository;
+        private readonly ICompanyRepository _companyRepository;
         private readonly JwtService _jwtService;
 
         public AuthService(
             IUserRepository userRepository,
             IRoleRepository roleRepository,
             IUserRoleRepository userRoleRepository,
+            ICompanyRepository companyRepository,
             JwtService jwtService)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _userRoleRepository = userRoleRepository;
+            _companyRepository = companyRepository;
             _jwtService = jwtService;
         }
 
@@ -35,6 +39,32 @@ namespace PfeProject.Application.Service
                 return new AuthResponse { Message = "Email déjà utilisé ❌", Success = false };
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            // 🏢 Auto-create company for the first user or get existing company
+            Company userCompany;
+            var isFirstUser = !await _userRepository.AnyUsersExistAsync();
+            
+            if (isFirstUser)
+            {
+                // Create a new company for the first user
+                userCompany = new Company
+                {
+                    Name = $"{request.FirstName} {request.LastName}'s Company",
+                    Description = $"Company created for {request.FirstName} {request.LastName}",
+                    Code = GenerateCompanyCode(request.Email),
+                    CreationDate = DateTime.UtcNow,
+                    UpdateDate = DateTime.UtcNow,
+                    IsActive = true
+                };
+                await _companyRepository.AddCompanyAsync(userCompany);
+            }
+            else
+            {
+                // For now, assign to the first company (you can implement invitation logic later)
+                userCompany = await _companyRepository.GetCompanyByIdAsync(1);
+                if (userCompany == null)
+                    return new AuthResponse { Message = "No company available for registration", Success = false };
+            }
 
             var user = new User
             {
@@ -47,7 +77,8 @@ namespace PfeProject.Application.Service
                 UpdateDate = DateTime.UtcNow,
                 State = true,
                 ResetPasswordToken = string.Empty,
-                ResetTokenExpiration = null
+                ResetTokenExpiration = null,
+                CompanyId = userCompany.Id  // 🏢 Set Company relationship
             };
 
             await _userRepository.AddUserAsync(user);
@@ -152,6 +183,72 @@ namespace PfeProject.Application.Service
             await _userRepository.UpdateUserAsync(user);
 
             return new AuthResponse { Message = "Mot de passe réinitialisé avec succès", Success = true };
+        }
+
+        private string GenerateCompanyCode(string email)
+        {
+            // Generate a unique company code based on email domain or user info
+            var domain = email.Split('@')[1].Split('.')[0].ToUpper();
+            var timestamp = DateTime.UtcNow.ToString("yyyyMMdd");
+            return $"{domain}_{timestamp}";
+        }
+
+        public async Task<AuthResponse> InviteUserToCompanyAsync(InviteUserRequest request)
+        {
+            // Check if user already exists
+            var existingUser = await _userRepository.GetUserByEmailAsync(request.Email);
+            if (existingUser != null)
+                return new AuthResponse { Success = false, Message = "User with this email already exists" };
+
+            // Verify company exists
+            var company = await _companyRepository.GetCompanyByIdAsync(request.CompanyId);
+            if (company == null)
+                return new AuthResponse { Success = false, Message = "Company not found" };
+
+            // Get the role
+            var role = await _roleRepository.GetByNameAsync(request.Role);
+            if (role == null)
+                return new AuthResponse { Success = false, Message = "Invalid role specified" };
+
+            // Create user directly
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            
+            var user = new User
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Matricule = request.Matricule,
+                Password = hashedPassword,
+                CreationDate = DateTime.UtcNow,
+                UpdateDate = DateTime.UtcNow,
+                State = true,
+                ResetPasswordToken = string.Empty,
+                ResetTokenExpiration = null,
+                CompanyId = request.CompanyId
+            };
+
+            await _userRepository.AddUserAsync(user);
+
+            // Assign role
+            var userRole = new UserRole
+            {
+                UserId = user.Id,
+                RoleId = role.Id,
+                IsActive = true,
+                AssignmentDate = DateTime.UtcNow,
+                Note = "Role assigned via invitation"
+            };
+
+            await _userRoleRepository.AddAsync(userRole);
+
+            return new AuthResponse
+            {
+                Email = user.Email,
+                Role = role.Name,
+                Message = "User created successfully in company",
+                Success = true
+            };
         }
     }
 }

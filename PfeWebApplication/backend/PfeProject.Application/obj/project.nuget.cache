@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Ctsp2tBheYk=",
+  "dgSpecHash": "Prkic+mNTdI=",
   "success": true,
   "projectFilePath": "C:\\Users\\GX15\\Downloads\\PfeWebApplication.net\\PfeWebApplication\\backend\\PfeProject.Application\\PfeProject.Application.csproj",
   "expectedPackageFiles": [
@@ -19,10 +19,12 @@
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\9.0.1\\microsoft.extensions.configuration.abstractions.9.0.1.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\9.0.1\\microsoft.extensions.dependencyinjection.9.0.1.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.1\\microsoft.extensions.dependencyinjection.abstractions.9.0.1.nupkg.sha512",
+    "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.http\\3.1.0\\microsoft.extensions.http.3.1.0.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.identity.core\\7.0.11\\microsoft.extensions.identity.core.7.0.11.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.identity.stores\\7.0.11\\microsoft.extensions.identity.stores.7.0.11.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.logging\\9.0.1\\microsoft.extensions.logging.9.0.1.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\9.0.1\\microsoft.extensions.logging.abstractions.9.0.1.nupkg.sha512",
+    "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.objectpool\\7.0.0\\microsoft.extensions.objectpool.7.0.0.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.options\\9.0.1\\microsoft.extensions.options.9.0.1.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.1\\microsoft.extensions.primitives.9.0.1.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.identitymodel.abstractions\\8.0.2\\microsoft.identitymodel.abstractions.8.0.2.nupkg.sha512",
@@ -31,6 +33,7 @@
     "C:\\Users\\GX15\\.nuget\\packages\\microsoft.identitymodel.tokens\\8.0.2\\microsoft.identitymodel.tokens.8.0.2.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\npgsql\\9.0.2\\npgsql.9.0.2.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\9.0.3\\npgsql.entityframeworkcore.postgresql.9.0.3.nupkg.sha512",
+    "C:\\Users\\GX15\\.nuget\\packages\\prometheus-net\\8.2.1\\prometheus-net.8.2.1.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\system.diagnostics.diagnosticsource\\9.0.1\\system.diagnostics.diagnosticsource.9.0.1.nupkg.sha512",
     "C:\\Users\\GX15\\.nuget\\packages\\system.identitymodel.tokens.jwt\\8.0.2\\system.identitymodel.tokens.jwt.8.0.2.nupkg.sha512"
   ],

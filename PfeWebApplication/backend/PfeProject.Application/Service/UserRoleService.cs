@@ -1,11 +1,12 @@
-﻿using PfeProject.Domain.Entities;
+﻿using PfeProject.Application.Interfaces;
+using PfeProject.Domain.Entities;
 using PfeProject.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PfeProject.Application.Services
 {
-    public class UserRoleService
+    public class UserRoleService : IUserRoleService
     {
         private readonly IUserRoleRepository _userRoleRepository;
 
@@ -14,6 +15,7 @@ namespace PfeProject.Application.Services
             _userRoleRepository = userRoleRepository;
         }
 
+        // Legacy methods
         public async Task<IEnumerable<UserRole>> GetAllAsync() =>
             await _userRoleRepository.GetAllAsync();
 
@@ -34,5 +36,30 @@ namespace PfeProject.Application.Services
 
         public async Task<IEnumerable<User>> GetUsersForRoleAsync(int roleId) =>
             await _userRoleRepository.GetUsersForRoleAsync(roleId);
+
+        public async Task<bool> ExistsAsync(int userId, int roleId) =>
+            await _userRoleRepository.ExistsAsync(userId, roleId);
+
+        // Company-aware methods
+        public async Task<IEnumerable<UserRole>> GetAllByCompanyAsync(int companyId) =>
+            await _userRoleRepository.GetAllByCompanyAsync(companyId);
+
+        public async Task<UserRole> GetByIdAndCompanyAsync(int userId, int roleId, int companyId) =>
+            await _userRoleRepository.GetByIdAndCompanyAsync(userId, roleId, companyId);
+
+        public async Task<IEnumerable<Role>> GetRolesForUserAndCompanyAsync(int userId, int companyId) =>
+            await _userRoleRepository.GetRolesForUserAndCompanyAsync(userId, companyId);
+
+        public async Task<IEnumerable<User>> GetUsersForRoleAndCompanyAsync(int roleId, int companyId) =>
+            await _userRoleRepository.GetUsersForRoleAndCompanyAsync(roleId, companyId);
+
+        public async Task AddForCompanyAsync(UserRole userRole, int companyId)
+        {
+            userRole.CompanyId = companyId; // 🏢 Set Company relationship
+            await _userRoleRepository.AddAsync(userRole);
+        }
+
+        public async Task<bool> ExistsInCompanyAsync(int userId, int roleId, int companyId) =>
+            await _userRoleRepository.ExistsInCompanyAsync(userId, roleId, companyId);
     }
 }

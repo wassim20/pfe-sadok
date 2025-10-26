@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models.Articles;
+using PfeProject.Application.Services;
 using System.Security.Claims;
+using System.Diagnostics;
 
 namespace PfeProject.API.Controllers
 {
@@ -22,9 +24,25 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ArticleReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var companyId = GetCurrentUserCompanyId();
-            var articles = await _service.GetAllByCompanyAsync(companyId, isActive);
-            return Ok(articles);
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                var companyId = GetCurrentUserCompanyId();
+                var articles = await _service.GetAllByCompanyAsync(companyId, isActive);
+                
+                MetricsService.TrackArticleOperation("get_all", "success");
+                return Ok(articles);
+            }
+            catch (Exception ex)
+            {
+                MetricsService.TrackArticleOperation("get_all", "error");
+                throw;
+            }
+            finally
+            {
+                stopwatch.Stop();
+                MetricsService.TrackArticleOperationDuration("get_all", stopwatch.Elapsed.TotalSeconds);
+            }
         }
 
         // ✅ GET: /api/articles/5

@@ -1,4 +1,5 @@
 ﻿using PfeProject.Application.Models;
+using PfeProject.Application.Models.Invitations;
 using System.Threading.Tasks;
 
 namespace PfeProject.Application.Interfaces
@@ -14,5 +15,7 @@ namespace PfeProject.Application.Interfaces
         // 🔐 Réinitialisation du mot de passe avec token
         Task<AuthResponse> ResetPasswordAsync(string token, string newPassword);
 
+        // 🏢 Invite user to company
+        Task<AuthResponse> InviteUserToCompanyAsync(InviteUserRequest request);
     }
 }

@@ -29,5 +29,19 @@ namespace PfeProject.Infrastructure.Repositories
             _context.Statuses.Add(status);
             await _context.SaveChangesAsync();
         }
+
+        // Company-aware methods
+        public async Task<IEnumerable<Status>> GetAllByCompanyAsync(int companyId)
+        {
+            return await _context.Statuses
+                .Where(s => s.CompanyId == companyId) // 🏢 Filter by CompanyId
+                .ToListAsync();
+        }
+
+        public async Task<Status?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            return await _context.Statuses
+                .FirstOrDefaultAsync(s => s.Id == id && s.CompanyId == companyId); // 🏢 Filter by CompanyId
+        }
     }
 }

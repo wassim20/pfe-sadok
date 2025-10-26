@@ -21,6 +21,10 @@ namespace PfeProject.Domain.Entities
         public int StatusId { get; set; }
         public Status Status { get; set; }
 
+        // 🏢 Company relationship
+        public int CompanyId { get; set; }
+        public virtual Company Company { get; set; }
+
         // 🔗 US affectées à cette ligne
         public ICollection<PicklistUs> PicklistUs { get; set; } = new HashSet<PicklistUs>();
         public bool IsActive { get; set; } = true;

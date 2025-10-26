@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
+using PfeProject.Application.Models.Companies;
+using PfeProject.Application.Models.Invitations;
 using PfeProject.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,10 +15,12 @@ namespace PfeProject.API.Controllers
     public class CompanyController : ControllerBase
     {
         private readonly ICompanyService _companyService;
+        private readonly IAuthService _authService;
 
-        public CompanyController(ICompanyService companyService)
+        public CompanyController(ICompanyService companyService, IAuthService authService)
         {
             _companyService = companyService;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -49,20 +53,9 @@ namespace PfeProject.API.Controllers
             return Ok(company);
         }
 
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyRequest request)
-        {
-            if (await _companyService.CompanyCodeExistsAsync(request.Code))
-                return BadRequest(new { message = "Company code already exists ❌" });
-
-            var company = await _companyService.CreateCompanyAsync(request.Name, request.Description, request.Code);
-            return CreatedAtAction(nameof(GetCompany), new { id = company.Id }, company);
-        }
-
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateCompany(int id, [FromBody] UpdateCompanyRequest request)
+        public async Task<IActionResult> UpdateCompany(int id, [FromBody] CompanyUpdateDto request)
         {
             if (!await _companyService.CompanyExistsAsync(id))
                 return NotFound(new { message = "Company not found ❌" });
@@ -81,19 +74,17 @@ namespace PfeProject.API.Controllers
             await _companyService.DeleteCompanyAsync(id);
             return Ok(new { message = "Company deleted successfully ✅" });
         }
-    }
 
-    public class CreateCompanyRequest
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Code { get; set; }
-    }
+        [HttpPost("invite-user")]
+        [Authorize]
+        public async Task<IActionResult> InviteUser([FromBody] InviteUserRequest request)
+        {
+            var result = await _authService.InviteUserToCompanyAsync(request);
+            
+            if (!result.Success)
+                return BadRequest(new { message = result.Message });
 
-    public class UpdateCompanyRequest
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Code { get; set; }
+            return Ok(new { message = result.Message, email = result.Email, role = result.Role });
+        }
     }
 }

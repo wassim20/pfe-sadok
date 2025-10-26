@@ -1,42 +1,43 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { BaseCompanyService } from 'app/core/services/base-company.service';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class PicklistService {
+export class PicklistService extends BaseCompanyService {
 
-  
-  private apiUrl = 'http://localhost:5288/api/Picklists';
+  protected apiUrl = 'http://localhost:5288/api/Picklists';
 
-  constructor(private http: HttpClient) {}
+  constructor(http: HttpClient, authService: AuthService) {
+    super(http, authService);
+  }
 
-  // ✅ Get all picklists, optionally filtered by active status
+  // ✅ Get all picklists - Company-aware
   getPicklists(isActive: boolean = true): Observable<any[]> {
-    const params = new HttpParams().set('isActive', isActive.toString());
-    return this.http.get<any[]>(this.apiUrl, { params });
+    return this.getAllByCompany(isActive);
   }
 
-  // ✅ Get picklist by ID
+  // ✅ Get picklist by ID - Company-aware
   getPicklistById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+    return this.getByIdAndCompany(id);
   }
 
-  // ✅ Create new picklist
+  // ✅ Create new picklist - Company-aware
   createPicklist(data: any): Observable<any> {
-    return this.http.post(this.apiUrl, data);
+    return this.createForCompany(data);
   }
 
-  // ✅ Update existing picklist
+  // ✅ Update existing picklist - Company-aware
   updatePicklist(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, data);
+    return this.updateForCompany(id, data);
   }
 
-  // ✅ Set active/inactive status
+  // ✅ Set active/inactive status - Company-aware
   setActiveStatus(id: number, value: boolean): Observable<any> {
-    const params = new HttpParams().set('value', value.toString());
-    return this.http.put(`${this.apiUrl}/${id}/set-active`, null, { params });
+    return this.setActiveStatusForCompany(id, value);
   }
 
   // ✅ Transitions
@@ -60,61 +61,40 @@ export class PicklistService {
    getstatus(): Observable<any[]> {
     return this.http.get<any[]>(`http://localhost:5288/api/Status`);
   }
-   loadDetailPicklists(id:number): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:5288/api/detailpicklists/by-picklist/${id}`);
-  }
-  
-
-    checkInventoryAvailability(details: any[]): Observable<{ detailPicklistId: number, isAvailable: boolean, availableQuantity: number, requestedQuantity: number, codeProduit: string }[]> {
-    return this.http.post<any[]>(`http://localhost:5288/api/detailpicklists/check-availability`, details);
+   // ✅ Load picklist details - Company-aware
+  loadDetailPicklists(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:5288/api/DetailPicklists/by-picklist/${id}`);
   }
 
-  updatePicklistStatus(id:number,data: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, { data });
+  // ✅ Load picklist details with availability status - Enhanced
+  loadDetailPicklistsWithAvailability(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:5288/api/DetailPicklists/by-picklist/${id}/with-availability`);
   }
 
-  // GET: /api/MovementTraces?isActive=true
-  getAll(isActive: boolean | null = true): Observable<any[]> {
-    let params = new HttpParams();
-    if (isActive !== null) {
-      params = params.append('isActive', isActive.toString());
-    }
-    return this.http.get<any[]>(`http://localhost:5288/api/MovementTraces`, { params });
+  // ✅ Check inventory availability - Enhanced
+  checkInventoryAvailability(details: any[]): Observable<any[]> {
+    return this.http.post<any[]>(`http://localhost:5288/api/DetailPicklists/check-availability`, details);
   }
 
-  // GET: /api/MovementTraces/{id}
-  getById(id: number): Observable<any> {
-    return this.http.get<any>(`http://localhost:5288/api/MovementTraces/${id}`);
+  // ✅ Create detail picklist - Company-aware
+  createDetailPicklist(createDto: any): Observable<any> {
+    const url = `http://localhost:5288/api/DetailPicklists`;
+    console.log(`[PicklistService] Creating detail picklist:`, createDto);
+    return this.http.post<any>(url, createDto);
   }
 
-getArticles(): Observable<any[]> {
-  return this.http.get<any[]>('http://localhost:5288/api/Articles?isActive=true');
-}
+  // ✅ Get articles - Company-aware
+  getArticles(): Observable<any[]> {
+    return this.http.get<any[]>('http://localhost:5288/api/Articles?isActive=true');
+  }
 
-  // POST: /api/MovementTraces
-  createMovementTrace(dto: any): Observable<any> { // Utilise 'any' pour le DTO
+  // ✅ Create movement trace - Company-aware
+  createMovementTrace(dto: any): Observable<any> {
     return this.http.post<any>(`http://localhost:5288/api/MovementTraces`, dto);
   }
 
-  // PUT: /api/MovementTraces/{id}/set-active?value=true
-  setActiveStatusMovment(id: number, value: boolean): Observable<any> {
-    let params = new HttpParams();
-    params = params.append('value', value.toString());
-    return this.http.put(`http://localhost:5288/api/MovementTraces/${id}/set-active`, null, { params }); // PUT body is often empty for toggles
-  }
-
-
-   createDetailPicklist(createDto: any): Observable<any> {
-    // Construire l'URL. Important: respecter la casse 'DetailPicklists' (D et P majuscules)
-    // comme définie dans [Route("api/[controller]")] du contrôleur ASP.NET Core DetailPicklistsController.
-    const url = `http://localhost:5288/api/DetailPicklists`;
-    console.log(`[PicklistService] Envoi de la requête POST ${url}`, createDto);
-    
-    // Envoyer la requête POST avec le DTO dans le corps.
-    // Le backend s'attend à recevoir un JSON correspondant à DetailPicklistCreateDto.
-    return this.http.post<any>(url, createDto);
-    // Backend:
-    // - En cas de succès: retourne 201 Created avec le DetailPicklistReadDto créé.
-    // - En cas d'échec (données invalides, Picklist/Article/Status non trouvé): retourne un code d'erreur (400, 404, 409, 500).
+  // ✅ Delete detail picklist - Company-aware
+  deleteDetailPicklist(id: number): Observable<any> {
+    return this.http.delete<any>(`http://localhost:5288/api/DetailPicklists/${id}`);
   }
 }

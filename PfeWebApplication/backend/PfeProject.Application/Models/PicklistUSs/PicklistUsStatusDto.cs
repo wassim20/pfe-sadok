@@ -1,4 +1,7 @@
-﻿public class PicklistUsStatusDto
+﻿namespace PfeProject.Application.Models.PicklistUSs
 {
-    public bool IsActive { get; set; }
+    public class PicklistUsStatusDto
+    {
+        public bool IsActive { get; set; }
+    }
 }

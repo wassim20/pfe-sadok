@@ -65,5 +65,38 @@ namespace PfeProject.Infrastructure.Repositories
                 //.Include(s => s.Article) // Si nécessaire
                 .FirstOrDefaultAsync(s => s.UsCode == usCode);
         }
+
+        // Company-aware methods
+        public async Task<IEnumerable<Sap>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
+        {
+            var query = _context.Saps.Where(s => s.CompanyId == companyId);
+
+            if (isActive.HasValue)
+                query = query.Where(s => s.IsActive == isActive.Value);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<Sap?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            return await _context.Saps
+                .FirstOrDefaultAsync(s => s.Id == id && s.CompanyId == companyId);
+        }
+
+        public async Task<bool> ExistsByIdAndCompanyAsync(int id, int companyId)
+        {
+            return await _context.Saps
+                .AnyAsync(s => s.Id == id && s.CompanyId == companyId);
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var sap = await _context.Saps.FindAsync(id);
+            if (sap != null)
+            {
+                _context.Saps.Remove(sap);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

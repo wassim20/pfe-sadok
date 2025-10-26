@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models.DetailInventories;
+using System.Security.Claims;
 
 namespace PfeProject.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🏢 Added authorization
     public class DetailInventoriesController : ControllerBase
     {
         private readonly IDetailInventoryService _service;
@@ -19,7 +22,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DetailInventoryReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var result = await _service.GetAllAsync(isActive);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var result = await _service.GetAllByCompanyAsync(companyId, isActive); // 🏢 Use company-aware method
             return Ok(result);
         }
 
@@ -27,7 +31,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DetailInventoryReadDto>> GetById(int id)
         {
-            var detail = await _service.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var detail = await _service.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
             if (detail == null)
                 return NotFound();
 
@@ -38,7 +43,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("by-inventory/{inventoryId}")]
         public async Task<ActionResult<IEnumerable<DetailInventoryReadDto>>> GetByInventoryId(int inventoryId, [FromQuery] bool? isActive = true)
         {
-            var result = await _service.GetByInventoryIdAsync(inventoryId, isActive);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var result = await _service.GetByInventoryIdAndCompanyAsync(inventoryId, companyId, isActive); // 🏢 Use company-aware method
             return Ok(result);
         }
 
@@ -46,15 +52,17 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] DetailInventoryCreateDto dto)
         {
-            await _service.CreateAsync(dto);
-            return Ok(new { message = "Ligne d’inventaire créée avec succès." });
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            await _service.CreateForCompanyAsync(dto, companyId); // 🏢 Use company-aware method
+            return Ok(new { message = "Ligne d'inventaire créée avec succès." });
         }
 
         // PUT: /api/detail-inventories/{id}
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] DetailInventoryUpdateDto dto)
         {
-            var success = await _service.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var success = await _service.UpdateForCompanyAsync(id, dto, companyId); // 🏢 Use company-aware method
             if (!success)
                 return NotFound();
 
@@ -70,6 +78,16 @@ namespace PfeProject.API.Controllers
                 return NotFound();
 
             return NoContent();
+        }
+
+        private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
         }
     }
 }

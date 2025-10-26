@@ -106,6 +106,10 @@
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
               "version": "[8.0.2, )"
+            },
+            "prometheus-net.AspNetCore": {
+              "target": "Package",
+              "version": "[8.2.1, )"
             }
           },
           "imports": [
@@ -200,6 +204,10 @@
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
               "version": "[8.0.2, )"
+            },
+            "prometheus-net": {
+              "target": "Package",
+              "version": "[8.2.1, )"
             }
           },
           "imports": [

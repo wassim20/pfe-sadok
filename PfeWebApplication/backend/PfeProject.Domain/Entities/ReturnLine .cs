@@ -15,4 +15,8 @@ public class ReturnLine
 
     public int StatusId { get; set; }
     public Status Status { get; set; }
+
+    // 🏢 Company relationship
+    public int CompanyId { get; set; }
+    public virtual Company Company { get; set; }
 }

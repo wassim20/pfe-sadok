@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace YourProject.Application.Models.Picklists
+namespace PfeProject.Application.Models.Picklists
 {
     public class PicklistUpdateDto
     {

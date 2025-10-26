@@ -22,39 +22,6 @@ namespace PfeProject.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Article", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CodeProduit")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("DateAjout")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("Designation")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Articles", (string)null);
-                });
-
             modelBuilder.Entity("DetailInventory", b =>
                 {
                     b.Property<int>("Id")
@@ -67,6 +34,9 @@ namespace PfeProject.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("InventoryId")
                         .HasColumnType("integer");
@@ -95,6 +65,8 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("InventoryId");
 
                     b.HasIndex("LocationId");
@@ -106,72 +78,6 @@ namespace PfeProject.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("DetailInventories", (string)null);
-                });
-
-            modelBuilder.Entity("DetailPicklist", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ArticleId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Emplacement")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<int>("PicklistId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Quantite")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("StatusId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArticleId");
-
-                    b.HasIndex("PicklistId");
-
-                    b.HasIndex("StatusId");
-
-                    b.ToTable("DetailPicklists", (string)null);
-                });
-
-            modelBuilder.Entity("Line", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Lines", (string)null);
                 });
 
             modelBuilder.Entity("Location", b =>
@@ -187,6 +93,9 @@ namespace PfeProject.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -200,6 +109,8 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("WarehouseId");
 
                     b.ToTable("Locations", (string)null);
@@ -212,6 +123,9 @@ namespace PfeProject.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("DateMouvement")
                         .ValueGeneratedOnAdd()
@@ -240,11 +154,145 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("DetailPicklistId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("MovementTraces", (string)null);
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Article", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CodeProduit")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateAjout")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Designation")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Articles", (string)null);
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Company", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("CreationDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Companies", (string)null);
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.DetailPicklist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Emplacement")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("PicklistId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Quantite")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("PicklistId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("DetailPicklists", (string)null);
                 });
 
             modelBuilder.Entity("PfeProject.Domain.Entities.Inventory", b =>
@@ -254,6 +302,9 @@ namespace PfeProject.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("DateInventaire")
                         .ValueGeneratedOnAdd()
@@ -275,7 +326,98 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.ToTable("Inventories", (string)null);
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Line", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Lines", (string)null);
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Picklist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LineId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Quantity")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("WarehouseId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("LineId");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("Picklists", (string)null);
                 });
 
             modelBuilder.Entity("PfeProject.Domain.Entities.Role", b =>
@@ -285,6 +427,9 @@ namespace PfeProject.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreationDate")
                         .ValueGeneratedOnAdd()
@@ -308,10 +453,71 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("Name")
                         .IsUnique();
 
                     b.ToTable("Roles", (string)null);
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Sap", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Article")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("Quantite")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UsCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Saps", (string)null);
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Status", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Status", (string)null);
                 });
 
             modelBuilder.Entity("PfeProject.Domain.Entities.User", b =>
@@ -321,6 +527,9 @@ namespace PfeProject.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreationDate")
                         .ValueGeneratedOnAdd()
@@ -376,6 +585,8 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -385,62 +596,6 @@ namespace PfeProject.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("Picklist", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<int>("LineId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("Quantity")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("StatusId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("WarehouseId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("LineId");
-
-                    b.HasIndex("StatusId");
-
-                    b.HasIndex("WarehouseId");
-
-                    b.ToTable("Picklists", (string)null);
-                });
-
             modelBuilder.Entity("PicklistUs", b =>
                 {
                     b.Property<int>("Id")
@@ -448,6 +603,9 @@ namespace PfeProject.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("Date")
                         .ValueGeneratedOnAdd()
@@ -477,6 +635,8 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("DetailPicklistId");
 
                     b.HasIndex("StatusId");
@@ -495,6 +655,9 @@ namespace PfeProject.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ArticleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CompanyId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("DateRetour")
@@ -521,60 +684,13 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasIndex("ArticleId");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("StatusId");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("ReturnLines", (string)null);
-                });
-
-            modelBuilder.Entity("Sap", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Article")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<int>("Quantite")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UsCode")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Saps", (string)null);
-                });
-
-            modelBuilder.Entity("Status", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Status", (string)null);
                 });
 
             modelBuilder.Entity("UserRole", b =>
@@ -593,6 +709,9 @@ namespace PfeProject.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -607,6 +726,8 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasIndex("AssignedById");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles", (string)null);
@@ -619,6 +740,9 @@ namespace PfeProject.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -635,11 +759,19 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.ToTable("Warehouses", (string)null);
                 });
 
             modelBuilder.Entity("DetailInventory", b =>
                 {
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("PfeProject.Domain.Entities.Inventory", "Inventory")
                         .WithMany("DetailInventories")
                         .HasForeignKey("InventoryId")
@@ -656,7 +788,7 @@ namespace PfeProject.Infrastructure.Migrations
                         .WithMany("DetailInventories")
                         .HasForeignKey("LocationId1");
 
-                    b.HasOne("Sap", "Sap")
+                    b.HasOne("PfeProject.Domain.Entities.Sap", "Sap")
                         .WithMany("DetailInventories")
                         .HasForeignKey("SapId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -668,6 +800,8 @@ namespace PfeProject.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Company");
+
                     b.Navigation("Inventory");
 
                     b.Navigation("Location");
@@ -677,47 +811,34 @@ namespace PfeProject.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DetailPicklist", b =>
-                {
-                    b.HasOne("Article", "Article")
-                        .WithMany("DetailPicklists")
-                        .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Picklist", "Picklist")
-                        .WithMany("Details")
-                        .HasForeignKey("PicklistId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Status", "Status")
-                        .WithMany("DetailPicklists")
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Article");
-
-                    b.Navigation("Picklist");
-
-                    b.Navigation("Status");
-                });
-
             modelBuilder.Entity("Location", b =>
                 {
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Warehouse", "Warehouse")
                         .WithMany("Locations")
                         .HasForeignKey("WarehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Company");
+
                     b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("MovementTrace", b =>
                 {
-                    b.HasOne("DetailPicklist", "DetailPicklist")
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PfeProject.Domain.Entities.DetailPicklist", "DetailPicklist")
                         .WithMany()
                         .HasForeignKey("DetailPicklistId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -729,20 +850,96 @@ namespace PfeProject.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Company");
+
                     b.Navigation("DetailPicklist");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Picklist", b =>
+            modelBuilder.Entity("PfeProject.Domain.Entities.Article", b =>
                 {
-                    b.HasOne("Line", "Line")
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany("Articles")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.DetailPicklist", b =>
+                {
+                    b.HasOne("PfeProject.Domain.Entities.Article", "Article")
+                        .WithMany("DetailPicklists")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PfeProject.Domain.Entities.Picklist", "Picklist")
+                        .WithMany("Details")
+                        .HasForeignKey("PicklistId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PfeProject.Domain.Entities.Status", "Status")
+                        .WithMany("DetailPicklists")
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Picklist");
+
+                    b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Inventory", b =>
+                {
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany("Inventories")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Line", b =>
+                {
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany("Lines")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Picklist", b =>
+                {
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany("Picklists")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PfeProject.Domain.Entities.Line", "Line")
                         .WithMany("Picklists")
                         .HasForeignKey("LineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Status", "Status")
+                    b.HasOne("PfeProject.Domain.Entities.Status", "Status")
                         .WithMany("Picklists")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -754,6 +951,8 @@ namespace PfeProject.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Company");
+
                     b.Navigation("Line");
 
                     b.Navigation("Status");
@@ -761,15 +960,65 @@ namespace PfeProject.Infrastructure.Migrations
                     b.Navigation("Warehouse");
                 });
 
+            modelBuilder.Entity("PfeProject.Domain.Entities.Role", b =>
+                {
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Sap", b =>
+                {
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany("Saps")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Status", b =>
+                {
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany("Statuses")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.User", b =>
+                {
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany("Users")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
             modelBuilder.Entity("PicklistUs", b =>
                 {
-                    b.HasOne("DetailPicklist", "DetailPicklist")
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PfeProject.Domain.Entities.DetailPicklist", "DetailPicklist")
                         .WithMany("PicklistUs")
                         .HasForeignKey("DetailPicklistId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Status", "Status")
+                    b.HasOne("PfeProject.Domain.Entities.Status", "Status")
                         .WithMany("PicklistUsList")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -781,6 +1030,8 @@ namespace PfeProject.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Company");
+
                     b.Navigation("DetailPicklist");
 
                     b.Navigation("Status");
@@ -790,13 +1041,19 @@ namespace PfeProject.Infrastructure.Migrations
 
             modelBuilder.Entity("ReturnLine", b =>
                 {
-                    b.HasOne("Article", "Article")
+                    b.HasOne("PfeProject.Domain.Entities.Article", "Article")
                         .WithMany("ReturnLines")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Status", "Status")
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PfeProject.Domain.Entities.Status", "Status")
                         .WithMany("ReturnLines")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -810,6 +1067,8 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.Navigation("Article");
 
+                    b.Navigation("Company");
+
                     b.Navigation("Status");
 
                     b.Navigation("User");
@@ -820,6 +1079,12 @@ namespace PfeProject.Infrastructure.Migrations
                     b.HasOne("PfeProject.Domain.Entities.User", "AssignedBy")
                         .WithMany()
                         .HasForeignKey("AssignedById");
+
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("PfeProject.Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
@@ -835,26 +1100,22 @@ namespace PfeProject.Infrastructure.Migrations
 
                     b.Navigation("AssignedBy");
 
+                    b.Navigation("Company");
+
                     b.Navigation("Role");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Article", b =>
+            modelBuilder.Entity("Warehouse", b =>
                 {
-                    b.Navigation("DetailPicklists");
+                    b.HasOne("PfeProject.Domain.Entities.Company", "Company")
+                        .WithMany("Warehouses")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("ReturnLines");
-                });
-
-            modelBuilder.Entity("DetailPicklist", b =>
-                {
-                    b.Navigation("PicklistUs");
-                });
-
-            modelBuilder.Entity("Line", b =>
-                {
-                    b.Navigation("Picklists");
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("Location", b =>
@@ -862,14 +1123,71 @@ namespace PfeProject.Infrastructure.Migrations
                     b.Navigation("DetailInventories");
                 });
 
+            modelBuilder.Entity("PfeProject.Domain.Entities.Article", b =>
+                {
+                    b.Navigation("DetailPicklists");
+
+                    b.Navigation("ReturnLines");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Company", b =>
+                {
+                    b.Navigation("Articles");
+
+                    b.Navigation("Inventories");
+
+                    b.Navigation("Lines");
+
+                    b.Navigation("Picklists");
+
+                    b.Navigation("Saps");
+
+                    b.Navigation("Statuses");
+
+                    b.Navigation("Users");
+
+                    b.Navigation("Warehouses");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.DetailPicklist", b =>
+                {
+                    b.Navigation("PicklistUs");
+                });
+
             modelBuilder.Entity("PfeProject.Domain.Entities.Inventory", b =>
                 {
                     b.Navigation("DetailInventories");
                 });
 
+            modelBuilder.Entity("PfeProject.Domain.Entities.Line", b =>
+                {
+                    b.Navigation("Picklists");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Picklist", b =>
+                {
+                    b.Navigation("Details");
+                });
+
             modelBuilder.Entity("PfeProject.Domain.Entities.Role", b =>
                 {
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Sap", b =>
+                {
+                    b.Navigation("DetailInventories");
+                });
+
+            modelBuilder.Entity("PfeProject.Domain.Entities.Status", b =>
+                {
+                    b.Navigation("DetailPicklists");
+
+                    b.Navigation("PicklistUsList");
+
+                    b.Navigation("Picklists");
+
+                    b.Navigation("ReturnLines");
                 });
 
             modelBuilder.Entity("PfeProject.Domain.Entities.User", b =>
@@ -883,27 +1201,6 @@ namespace PfeProject.Infrastructure.Migrations
                     b.Navigation("ReturnLines");
 
                     b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("Picklist", b =>
-                {
-                    b.Navigation("Details");
-                });
-
-            modelBuilder.Entity("Sap", b =>
-                {
-                    b.Navigation("DetailInventories");
-                });
-
-            modelBuilder.Entity("Status", b =>
-                {
-                    b.Navigation("DetailPicklists");
-
-                    b.Navigation("PicklistUsList");
-
-                    b.Navigation("Picklists");
-
-                    b.Navigation("ReturnLines");
                 });
 
             modelBuilder.Entity("Warehouse", b =>

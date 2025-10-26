@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models.Locations;
+using System.Security.Claims;
 
 namespace PfeProject.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🏢 Added authorization
     public class LocationsController : ControllerBase
     {
         private readonly ILocationService _service;
@@ -19,7 +22,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<LocationReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var result = await _service.GetAllAsync(isActive);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var result = await _service.GetAllByCompanyAsync(companyId, isActive); // 🏢 Use company-aware method
             return Ok(result);
         }
 
@@ -27,7 +31,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<LocationReadDto>> GetById(int id)
         {
-            var location = await _service.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var location = await _service.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
             if (location == null)
                 return NotFound();
 
@@ -38,7 +43,8 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] LocationCreateDto dto)
         {
-            await _service.CreateAsync(dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            await _service.CreateForCompanyAsync(dto, companyId); // 🏢 Use company-aware method
             return Ok(new { message = "Location created successfully." });
         }
 
@@ -46,7 +52,8 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, [FromBody] LocationUpdateDto dto)
         {
-            var success = await _service.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var success = await _service.UpdateForCompanyAsync(id, dto, companyId); // 🏢 Use company-aware method
             if (!success)
                 return NotFound();
 
@@ -62,6 +69,16 @@ namespace PfeProject.API.Controllers
                 return NotFound();
 
             return NoContent();
+        }
+
+        private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
         }
     }
 }

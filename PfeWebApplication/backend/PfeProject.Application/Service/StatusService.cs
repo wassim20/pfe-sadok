@@ -51,5 +51,45 @@ namespace PfeProject.Application.Services
                 Description = s.Description
             };
         }
+
+        // Company-aware methods
+        public async Task<IEnumerable<StatusReadDto>> GetAllByCompanyAsync(int companyId)
+        {
+            var list = await _repository.GetAllByCompanyAsync(companyId);
+            return list.Select(s => new StatusReadDto
+            {
+                Id = s.Id,
+                Description = s.Description
+            });
+        }
+
+        public async Task<StatusReadDto?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            var s = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (s == null) return null;
+
+            return new StatusReadDto
+            {
+                Id = s.Id,
+                Description = s.Description
+            };
+        }
+
+        public async Task<StatusReadDto> CreateForCompanyAsync(StatusCreateDto dto, int companyId)
+        {
+            var s = new Status
+            {
+                Description = dto.Description,
+                CompanyId = companyId // 🏢 Set Company relationship
+            };
+
+            await _repository.AddAsync(s);
+
+            return new StatusReadDto
+            {
+                Id = s.Id,
+                Description = s.Description
+            };
+        }
     }
 }

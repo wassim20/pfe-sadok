@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using PfeProject.Domain.Entities;
 using PfeProject.Domain.Interfaces;
 using PfeProject.Infrastructure.Persistence;
 
@@ -53,6 +54,26 @@ namespace PfeProject.Infrastructure.Repositories
 
             _context.ReturnLines.Remove(entity);
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        // Company-aware methods
+        public async Task<List<ReturnLine>> GetAllByCompanyAsync(int companyId)
+        {
+            return await _context.ReturnLines
+                .Include(r => r.User)
+                .Include(r => r.Article)
+                .Include(r => r.Status)
+                .Where(r => r.CompanyId == companyId) // 🏢 Filter by CompanyId
+                .ToListAsync();
+        }
+
+        public async Task<ReturnLine?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            return await _context.ReturnLines
+                .Include(r => r.User)
+                .Include(r => r.Article)
+                .Include(r => r.Status)
+                .FirstOrDefaultAsync(r => r.Id == id && r.CompanyId == companyId); // 🏢 Filter by CompanyId
         }
     }
 }

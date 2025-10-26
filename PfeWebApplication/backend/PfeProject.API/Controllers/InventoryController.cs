@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PfeProject.Application.Interfaces;
 using PfeProject.Application.Models.Inventories;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace PfeProject.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // 🏢 Added authorization
     public class InventoriesController : ControllerBase
     {
         private readonly IInventoryService _service;
@@ -20,7 +23,8 @@ namespace PfeProject.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<InventoryReadDto>>> GetAll([FromQuery] bool? isActive = true)
         {
-            var result = await _service.GetAllAsync(isActive);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var result = await _service.GetAllByCompanyAsync(companyId, isActive); // 🏢 Use company-aware method
             return Ok(result);
         }
 
@@ -28,7 +32,8 @@ namespace PfeProject.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<InventoryReadDto>> GetById(int id)
         {
-            var inventory = await _service.GetByIdAsync(id);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var inventory = await _service.GetByIdAndCompanyAsync(id, companyId); // 🏢 Use company-aware method
             if (inventory == null)
                 return NotFound();
 
@@ -39,7 +44,8 @@ namespace PfeProject.API.Controllers
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] InventoryCreateDto dto)
         {
-            await _service.CreateAsync(dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            await _service.CreateForCompanyAsync(dto, companyId); // 🏢 Use company-aware method
             return Ok(new { message = "Inventory created successfully." });
         }
 
@@ -59,7 +65,8 @@ namespace PfeProject.API.Controllers
                 Console.WriteLine("DTO reçu: NULL");
             }
             Console.WriteLine("--- Fin de la journalisation du DTO ---");
-            var success = await _service.UpdateAsync(id, dto);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var success = await _service.UpdateForCompanyAsync(id, companyId, dto); // 🏢 Use company-aware method
             if (!success)
                 return NotFound();
 
@@ -70,11 +77,22 @@ namespace PfeProject.API.Controllers
         [HttpPut("{id}/set-active")]
         public async Task<ActionResult> SetActiveStatus(int id, [FromQuery] bool value)
         {
-            var success = await _service.SetActiveStatusAsync(id, value);
+            var companyId = GetCurrentUserCompanyId(); // 🏢 Get company ID
+            var success = await _service.SetActiveStatusAsync(id, value); // 🏢 Note: This method doesn't need company filtering as it's a simple status update
             if (!success)
                 return NotFound();
 
             return NoContent();
+        }
+
+        private int GetCurrentUserCompanyId() // 🏢 Helper method to get company ID from JWT
+        {
+            var companyIdClaim = User.FindFirst("CompanyId");
+            if (companyIdClaim != null && int.TryParse(companyIdClaim.Value, out int companyId))
+            {
+                return companyId;
+            }
+            throw new UnauthorizedAccessException("User company ID not found in token");
         }
     }
 }

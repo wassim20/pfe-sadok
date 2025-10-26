@@ -97,5 +97,83 @@ namespace PfeProject.Application.Service
         {
             return await _repository.DeleteAsync(id);
         }
+
+        // Company-aware methods
+        public async Task<ReturnLineReadDto> CreateForCompanyAsync(ReturnLineCreateDto createDto, int companyId)
+        {
+            var returnLine = new ReturnLine
+            {
+                UsCode = createDto.UsCode,
+                Quantite = createDto.Quantite,
+                UserId = createDto.UserId,
+                ArticleId = createDto.ArticleId,
+                StatusId = createDto.StatusId,
+                CompanyId = companyId // 🏢 Set Company relationship
+            };
+
+            var added = await _repository.CreateAsync(returnLine);
+
+            return new ReturnLineReadDto
+            {
+                Id = added.Id,
+                UsCode = added.UsCode,
+                Quantite = added.Quantite,
+                DateRetour = added.DateRetour,
+                ArticleId = added.ArticleId,
+                StatusId = added.StatusId,
+                UserId = added.UserId
+            };
+        }
+
+        public async Task<IEnumerable<ReturnLineReadDto>> GetAllByCompanyAsync(int companyId)
+        {
+            var results = await _repository.GetAllByCompanyAsync(companyId);
+
+            return results.Select(r => new ReturnLineReadDto
+            {
+                Id = r.Id,
+                UsCode = r.UsCode,
+                Quantite = r.Quantite,
+                DateRetour = r.DateRetour,
+                ArticleId = r.ArticleId,
+                ArticleCode = r.Article.CodeProduit,
+                StatusId = r.StatusId,
+                StatusName = r.Status.Description,
+                UserId = r.UserId,
+                UserName = r.User.FirstName + " " + r.User.LastName
+            });
+        }
+
+        public async Task<ReturnLineReadDto> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            var r = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (r == null) return null;
+
+            return new ReturnLineReadDto
+            {
+                Id = r.Id,
+                UsCode = r.UsCode,
+                Quantite = r.Quantite,
+                DateRetour = r.DateRetour,
+                ArticleId = r.ArticleId,
+                StatusId = r.StatusId,
+                UserId = r.UserId
+            };
+        }
+
+        public async Task<bool> UpdateForCompanyAsync(int id, ReturnLineUpdateDto updateDto, int companyId)
+        {
+            var returnLine = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (returnLine == null) return false;
+
+            returnLine.UsCode = updateDto.UsCode;
+            returnLine.Quantite = updateDto.Quantite;
+            if (updateDto.ArticleId.HasValue)
+                returnLine.ArticleId = updateDto.ArticleId.Value;
+            if (updateDto.StatusId.HasValue)
+                returnLine.StatusId = updateDto.StatusId.Value;
+
+            return await _repository.UpdateAsync(returnLine);
+        }
     }
 }

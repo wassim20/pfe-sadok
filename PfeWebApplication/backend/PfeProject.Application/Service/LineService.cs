@@ -72,5 +72,57 @@ namespace PfeProject.Application.Services
 
             return await _repository.SetActiveStatusAsync(id, isActive);
         }
+
+        // Company-aware methods
+        public async Task<IEnumerable<LineReadDto>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
+        {
+            var lines = await _repository.GetAllByCompanyAsync(companyId, isActive);
+            return lines.Select(l => new LineReadDto
+            {
+                Id = l.Id,
+                Description = l.Description,
+                IsActive = l.IsActive
+            });
+        }
+
+        public async Task<LineReadDto?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            var l = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (l == null) return null;
+
+            return new LineReadDto
+            {
+                Id = l.Id,
+                Description = l.Description,
+                IsActive = l.IsActive
+            };
+        }
+
+        public async Task<LineCreateDto> CreateForCompanyAsync(LineCreateDto dto, int companyId)
+        {
+            var l = new Line
+            {
+                Description = dto.Description,
+                IsActive = true,
+                CompanyId = companyId // 🏢 Set Company relationship
+            };
+
+            await _repository.AddAsync(l);
+
+            return new LineCreateDto
+            {
+                Description = l.Description
+            };
+        }
+
+        public async Task<bool> UpdateForCompanyAsync(int id, LineUpdateDto dto, int companyId)
+        {
+            var line = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (line == null) return false;
+
+            line.Description = dto.Description;
+            await _repository.UpdateAsync(line);
+            return true;
+        }
     }
 }

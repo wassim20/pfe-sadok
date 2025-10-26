@@ -63,7 +63,8 @@ export class ArticleComponent implements OnInit, OnDestroy {
 
   loadArticles(): void {
     this.loading = true;
-    this._articleService.getAll(this.isActiveFilter)
+    // 🏢 Use company-aware method instead of getAll
+    this._articleService.getAllByCompany(this.isActiveFilter)
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe({
         next: (data) => {
@@ -130,7 +131,8 @@ export class ArticleComponent implements OnInit, OnDestroy {
   }
 
   onToggleActive(id: number, currentStatus: boolean): void {
-    this._articleService.setActiveStatus(id, !currentStatus)
+    // 🏢 Use company-aware setActiveStatus method
+    this._articleService.setActiveStatusForCompany(id, !currentStatus)
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe({
         next: () => {
@@ -265,7 +267,8 @@ export class ArticleCreateComponent implements OnInit {
     this.submitting = true;
     const formData = this.articleForm.value;
 
-    this._articleService.create(formData)
+    // 🏢 Use company-aware create method
+    this._articleService.createForCompany(formData)
       .pipe(takeUntil(this._unsubscribeAll))
       .subscribe({
         next: (response) => {
@@ -434,7 +437,8 @@ export class ArticleEditComponent implements OnInit {
     const formData = this.articleForm.value;
 
     if (articleId) {
-      this._articleService.update(articleId, formData)
+      // 🏢 Use company-aware update method
+      this._articleService.updateForCompany(articleId, formData)
         .pipe(takeUntil(this._unsubscribeAll))
         .subscribe({
           next: (response) => {

@@ -51,7 +51,8 @@ export class SapComponent implements OnInit {
   }
 
   loadSapEntries() {
-    this.sapService.getAll().subscribe({
+    // 🏢 Use company-aware method instead of getAll
+    this.sapService.getAllByCompany().subscribe({
       next: (entries) => {
         this.sapEntries = entries;
         // Snackbar on initial load might be too noisy, consider removing or making it optional
@@ -85,7 +86,8 @@ export class SapComponent implements OnInit {
     // Inverser le statut actuel pour l'envoyer au backend
     const newStatus = !(currentStatus === true); // Ou simplement !currentStatus si vous êtes sûr que c'est un booléen
 
-    this.sapService.setactive(id, newStatus).subscribe({ // Passer newStatus au lieu de active
+    // 🏢 Use company-aware setActiveStatus method
+    this.sapService.setActiveStatusForCompany(id, newStatus).subscribe({
       next: () => {
         // Mettre à jour l'interface utilisateur immédiatement (optionnel mais recommandé)
         const sapItem = this.sapEntries.find(item => item.id === id);
@@ -116,8 +118,8 @@ export class SapComponent implements OnInit {
     }
 
     if (this.isEditMode && this.currentEditId) {
-      // Update existing entry
-      this.sapService.update(this.currentEditId, this.sapForm).subscribe({
+      // 🏢 Update existing entry using company-aware method
+      this.sapService.updateForCompany(this.currentEditId, this.sapForm).subscribe({
         next: () => {
           this.snackBar.open('Entrée SAP mise à jour avec succès', 'Succès', { duration: 3000 });
           this.resetForm(); // Reset form and mode after successful update
@@ -129,8 +131,8 @@ export class SapComponent implements OnInit {
         }
       });
     } else {
-      // Create new entry
-      this.sapService.create(this.sapForm).subscribe({
+      // 🏢 Create new entry using company-aware method
+      this.sapService.createForCompany(this.sapForm).subscribe({
         next: () => {
           this.snackBar.open('Entrée SAP créée avec succès', 'Succès', { duration: 3000 });
           this.resetForm(); // Reset form after successful creation

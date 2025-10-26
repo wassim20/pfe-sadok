@@ -16,6 +16,9 @@ namespace PfeProject.Domain.Interfaces
         Task<User> GetUserWithRolesByEmailAsync(string email);
         Task<User> GetUserByResetTokenAsync(string token); // 🔐 Ajouté pour le reset password
         Task<IReadOnlyList<User>> GetAllUsersWithRolesAsync();
+        Task<bool> AnyUsersExistAsync(); // 🏢 Check if any users exist in the system
+        Task<IReadOnlyList<User>> GetAllByCompanyAsync(int companyId);
+        Task<User> GetByIdAndCompanyAsync(int id, int companyId);
 
     }
 }

@@ -24,4 +24,7 @@ public class DetailInventory
     public Sap Sap { get; set; }
     public bool IsActive { get; set; } = true;
 
+    // 🏢 Company relationship
+    public int CompanyId { get; set; }
+    public virtual Company Company { get; set; }
 }

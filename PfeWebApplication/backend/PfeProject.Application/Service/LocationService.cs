@@ -81,5 +81,65 @@ namespace PfeProject.Application.Services
             await _repository.SetActiveStatusAsync(id, isActive);
             return true;
         }
+
+        // Company-aware methods
+        public async Task<IEnumerable<LocationReadDto>> GetAllByCompanyAsync(int companyId, bool? isActive = true)
+        {
+            var locations = await _repository.GetAllByCompanyAsync(companyId, isActive);
+            return locations.Select(l => new LocationReadDto
+            {
+                Id = l.Id,
+                Code = l.Code,
+                Description = l.Description,
+                WarehouseId = l.WarehouseId,
+                WarehouseName = l.Warehouse?.Name ?? string.Empty,
+                IsActive = l.IsActive
+            });
+        }
+
+        public async Task<LocationReadDto?> GetByIdAndCompanyAsync(int id, int companyId)
+        {
+            var location = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (location == null || !location.IsActive)
+                return null;
+
+            return new LocationReadDto
+            {
+                Id = location.Id,
+                Code = location.Code,
+                Description = location.Description,
+                WarehouseId = location.WarehouseId,
+                WarehouseName = location.Warehouse?.Name ?? string.Empty,
+                IsActive = location.IsActive
+            };
+        }
+
+        public async Task CreateForCompanyAsync(LocationCreateDto dto, int companyId)
+        {
+            var location = new Location
+            {
+                Code = dto.Code,
+                Description = dto.Description,
+                WarehouseId = dto.WarehouseId,
+                IsActive = true,
+                CompanyId = companyId // 🏢 Set Company relationship
+            };
+
+            await _repository.AddAsync(location);
+        }
+
+        public async Task<bool> UpdateForCompanyAsync(int id, LocationUpdateDto dto, int companyId)
+        {
+            var location = await _repository.GetByIdAndCompanyAsync(id, companyId);
+            if (location == null || !location.IsActive)
+                return false;
+
+            location.Code = dto.Code;
+            location.Description = dto.Description;
+            location.WarehouseId = dto.WarehouseId;
+
+            await _repository.UpdateAsync(location);
+            return true;
+        }
     }
 }

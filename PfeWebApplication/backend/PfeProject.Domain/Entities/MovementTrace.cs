@@ -17,4 +17,7 @@ public class MovementTrace
     public DetailPicklist DetailPicklist { get; set; }
     public bool IsActive { get; set; } = true;
 
+    // 🏢 Company relationship
+    public int CompanyId { get; set; }
+    public virtual Company Company { get; set; }
 }

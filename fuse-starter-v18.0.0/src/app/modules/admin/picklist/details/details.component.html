@@ -28,36 +28,79 @@
     </div>
     <div class="mt-4 flex flex-wrap gap-4">
       <button mat-raised-button color="primary" (click)="checkAvailability()" [disabled]="detailPicklists.length === 0">
-  Vérifier la Disponibilité
-</button>
+        Vérifier la Disponibilité
+      </button>
       <button mat-raised-button color="accent" (click)="sendOutPicklist()"
         [disabled]="picklist?.status?.description === 'Served' || picklist?.status?.description === 'receptionnée'  || !isAllAvailable || detailPicklists.length === 0">
         Envoyer la Picklist
       </button>
-        <button mat-raised-button color="primary" (click)="openAddDetailDialog()" [disabled]="!picklist || picklist.status?.description === 'Served' || picklist.status?.description === 'receptionnée'">
-    <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
-    <span class="ml-2">Ajouter Détail</span>
-  </button>
+      <button mat-raised-button color="primary" (click)="openAddDetailDialog()" [disabled]="!picklist || picklist.status?.description === 'Served' || picklist.status?.description === 'receptionnée'">
+        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+        <span class="ml-2">Ajouter Détail</span>
+      </button>
     </div>
   </div>
 
   <!-- Picklist Details -->
   <div *ngIf="detailPicklists && detailPicklists.length > 0; else noDetails">
     <h2 class="text-xl font-semibold text-indigo-400 mb-4">Détails des Articles</h2>
-    <div *ngFor="let detail of detailPicklists; let i = index" class="bg-gray-800 text-white max-w-4xl mx-auto rounded-xl shadow-md overflow-hidden mb-6 hover:shadow-2xl hover:bg-black transition-all duration-500 ease-in-out">
-      <div class="md:flex">
-        <div class="p-6 flex-grow">
-          <div class="flex flex-wrap items-baseline justify-between">
-            <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">Article: {{ detail.article?.designation }}</div>
-            <div class="text-xs text-gray-400">ID: {{ detail.id }}</div>
+    
+    <!-- Enhanced Detail Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let detail of detailPicklists; let i = index" 
+           class="bg-gray-800 text-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 ease-in-out"
+           [ngClass]="{
+             'border-green-500': detail.isAvailable === true,
+             'border-red-500': detail.isAvailable === false
+           }">
+        
+        <!-- Card Header -->
+        <div class="p-4 border-b border-gray-700">
+          <div class="flex items-center justify-between">
+            <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">
+              {{ detail.article?.designation }}
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="px-2 py-1 rounded-full text-xs font-medium"
+                    [ngClass]="{
+                      'bg-green-900 text-green-300': detail.isAvailable === true,
+                      'bg-red-900 text-red-300': detail.isAvailable === false,
+                      'bg-gray-700 text-gray-300': detail.isAvailable === undefined
+                    }">
+                {{ detail.isAvailable === true ? 'Disponible' : detail.isAvailable === false ? 'Non disponible' : 'Non vérifié' }}
+              </span>
+              <button mat-icon-button (click)="deleteDetail(detail.id)" 
+                      class="text-red-400 hover:text-red-300">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
           </div>
-          <p class="mt-2 text-lg leading-tight font-medium text-white">Emplacement: {{ detail.emplacement }}</p>
-          <div class="flex flex-wrap gap-4 mt-2">
-            <p class="text-gray-400">Quantité: <span class="font-medium">{{ detail.quantite }}</span></p>
-            <p class="text-gray-400">Statut: <span class="font-medium">{{ detail.status?.description }}</span></p>
+        </div>
+
+        <!-- Card Content -->
+        <div class="p-4">
+          <p class="text-sm text-gray-400 mb-2">ID: {{ detail.id }}</p>
+          <p class="text-sm text-indigo-400 font-mono mb-4">{{ detail.article?.codeProduit }}</p>
+          
+          <div class="space-y-3">
+            <div>
+              <p class="text-gray-400 text-sm">Emplacement:</p>
+              <p class="font-medium">{{ detail.emplacement }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-400 text-sm">Quantité:</p>
+              <p class="font-medium">{{ detail.quantite }}</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-400 text-sm">Statut:</p>
+              <p class="font-medium">{{ detail.status?.description }}</p>
+            </div>
+            
             <!-- Display individual item availability if checked -->
-            <p class="text-gray-400" *ngIf="detail.isAvailable !== undefined">
-              Disponibilité:
+            <div *ngIf="detail.isAvailable !== undefined">
+              <p class="text-gray-400 text-sm">Disponibilité:</p>
               <span class="font-medium"
                     [ngClass]="{
                       'text-green-400': detail.isAvailable === true,
@@ -66,14 +109,17 @@
                 {{ detail.isAvailable ? 'Dispo' : 'Non Dispo' }}
                 <span *ngIf="detail.availableQuantity !== undefined">({{ detail.availableQuantity }})</span>
               </span>
-            </p>
+            </div>
           </div>
         </div>
-        <div class="flex items-center justify-center p-4 md:p-2 bg-gray-700 md:min-w-[150px]">
+
+        <!-- Barcode Section -->
+        <div class="bg-gray-700 p-4 border-t border-gray-600">
           <div class="text-center">
-            <p class="text-xs text-indigo-400 uppercase mb-1 truncate px-2">Code Produit</p>
-            <svg #barcodeRef class="max-h-20 w-full"></svg>
-            
+            <p class="text-xs text-indigo-400 uppercase mb-2">Code Produit</p>
+            <div class="bg-white p-2 rounded">
+              <svg #barcodeRef class="w-full h-16"></svg>
+            </div>
           </div>
         </div>
       </div>

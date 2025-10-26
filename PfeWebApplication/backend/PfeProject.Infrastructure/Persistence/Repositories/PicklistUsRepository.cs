@@ -78,4 +78,39 @@ public class PicklistUsRepository : IPicklistUsRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    // Company-aware methods
+    public async Task<IEnumerable<PicklistUs>> GetFilteredByCompanyAsync(int? statusId, int? userId, int? detailPicklistId, bool? isActive, string? nom, int companyId)
+    {
+        var query = _context.PicklistUsList
+            .Include(p => p.User)
+            .Include(p => p.Status)
+            .Where(p => p.CompanyId == companyId) // 🏢 Filter by CompanyId
+            .AsQueryable();
+
+        if (statusId.HasValue)
+            query = query.Where(p => p.StatusId == statusId);
+
+        if (userId.HasValue)
+            query = query.Where(p => p.UserId == userId);
+
+        if (detailPicklistId.HasValue)
+            query = query.Where(p => p.DetailPicklistId == detailPicklistId);
+
+        if (isActive.HasValue)
+            query = query.Where(p => p.IsActive == isActive);
+
+        if (!string.IsNullOrWhiteSpace(nom))
+            query = query.Where(p => p.Nom.ToLower().Contains(nom.ToLower()));
+
+        return await query.ToListAsync();
+    }
+
+    public async Task<PicklistUs?> GetByIdAndCompanyAsync(int id, int companyId)
+    {
+        return await _context.PicklistUsList
+            .Include(p => p.User)
+            .Include(p => p.Status)
+            .FirstOrDefaultAsync(p => p.Id == id && p.CompanyId == companyId); // 🏢 Filter by CompanyId
+    }
 }

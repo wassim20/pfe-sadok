@@ -1,20 +1,32 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { from, Observable } from 'rxjs';
+import { BaseCompanyService } from 'app/core/services/base-company.service';
+import { AuthService } from 'app/core/auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class LineService {
-  private apiUrl = 'http://localhost:5288/api/Lines';
+export class LineService extends BaseCompanyService {
+  protected apiUrl = 'http://localhost:5288/api/Lines';
 
-  constructor(private http: HttpClient) {}
+  constructor(http: HttpClient, authService: AuthService) {
+    super(http, authService);
+  }
 
+  // 🏢 Company-aware methods (inherited from BaseCompanyService)
+  // - getAllByCompany(isActive?: boolean): Observable<any[]>
+  // - getByIdAndCompany(id: number): Observable<any>
+  // - createForCompany(dto: any): Observable<any>
+  // - updateForCompany(id: number, dto: any): Observable<any>
+  // - setActiveStatusForCompany(id: number, value: boolean): Observable<any>
+
+  // Legacy methods for backward compatibility
   getAll(): Observable<any[]> {
     return from(
       Promise.all([
-        this.http.get<any[]>(`${this.apiUrl}?isActive=true`).toPromise(),
-        this.http.get<any[]>(`${this.apiUrl}?isActive=false`).toPromise()
+        this.getAllByCompany(true).toPromise(),
+        this.getAllByCompany(false).toPromise()
       ]).then(([activeLines, inactiveLines]) => {
         return [...(activeLines || []), ...(inactiveLines || [])];
       }).catch(error => {
@@ -24,15 +36,15 @@ export class LineService {
   }
 
   getById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+    return this.getByIdAndCompany(id); // 🏢 Use company-aware method
   }
 
   create(line: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, line);
+    return this.createForCompany(line); // 🏢 Use company-aware method
   }
 
   update(id: number, line: any): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, line);
+    return this.updateForCompany(id, line); // 🏢 Use company-aware method
   }
 
   delete(id: number): Observable<void> {
@@ -40,8 +52,7 @@ export class LineService {
   }
 
   setActive(id: number, active: boolean): Observable<void> {
-    const params = new HttpParams().set('value', active.toString());
-    return this.http.put<void>(`${this.apiUrl}/${id}/set-active`, {}, { params });
+    return this.setActiveStatusForCompany(id, active); // 🏢 Use company-aware method
   }
 
   assignPicklist(lineId: number, picklistId: number): Observable<void> {
